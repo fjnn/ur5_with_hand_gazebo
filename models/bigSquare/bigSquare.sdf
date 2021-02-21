@@ -25,9 +25,10 @@
       </collision>
       <visual name="visual">
         <geometry>
-          <box>
-            <size>1 1 3</size>
-          </box>
+          <mesh>
+            <uri>model://bigSquare/Link1-v2.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
         </geometry>
       </visual>
     </link>
