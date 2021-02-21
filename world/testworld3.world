@@ -122,7 +122,7 @@
       </model>
       <model name='cafe_table'>
         <pose frame=''>0.478849 1.02553 0 0 -0 0</pose>
-        <scale>1 1 1</scale>
+        <scale>0.5 0.5 0.5</scale>
         <link name='link'>
           <pose frame=''>0.478849 1.02553 0 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
