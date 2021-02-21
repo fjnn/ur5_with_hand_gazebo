@@ -1,0 +1,61 @@
+<?xml version='1.0'?>
+<sdf version="1.4">
+  <model name="hvlscreen">
+    <pose>0 0 0.5 0 0 0</pose>
+    <static>true</static>
+    <link name="link">
+      <inertial>
+        <mass>1.0</mass>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>3 0.1 2</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>3 0.1 2</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://hvlscreen/materials/scripts</uri>
+            <uri>model://hvlscreen/materials/textures</uri>
+            <name>hvlscreenMat/Diffuse</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
+<!--
+    <link name="link">
+      <inertial>
+        <mass>1.0</mass>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>2 0.1 1</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>2 0.1 1</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://hvlscreen/materials/scripts</uri>
+            <uri>model://hvlscreen/materials/textures</uri>
+            <name>hvlscreenMat/Diffuse</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>-->
