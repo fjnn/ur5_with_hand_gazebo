@@ -734,7 +734,7 @@
       </link>
       <pose frame=''>0.955542 0.668275 0 0 -0 0</pose>
     </model>
-  
+
     <state world_name='default'>
       <sim_time>102 340000000</sim_time>
       <real_time>102 868169653</real_time>
