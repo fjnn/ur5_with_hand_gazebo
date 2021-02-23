@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <sdf version='1.6'>
   <world name='default'>
     <light name='sun' type='directional'>
@@ -70,7 +71,7 @@
       <real_time_update_rate>1000</real_time_update_rate>
     </physics>
     <scene>
-      <ambient>0.4 0.4 0.4 1</ambient>
+      <ambient>1 1 1 0.4</ambient>
       <background>0.7 0.7 0.7 1</background>
       <shadows>1</shadows>
     </scene>
@@ -707,6 +708,7 @@
           <max_contacts>10</max_contacts>
         </collision>
         <visual name='wrist_3_link_visual'>
+          <plugin name="some_visual_plugin" filename="some_visual_plugin.so"/>
           <pose frame=''>0 0 0 0 -0 0</pose>
           <geometry>
             <mesh>
@@ -751,6 +753,18 @@
       <static>0</static>
       <plugin name='ros_control' filename='libgazebo_ros_control.so'>
         <robotNamespace>/</robotNamespace>
+      </plugin>
+      <plugin name="gazebo_ros_p3d" filename="libgazebo_ros_p3d.so">
+
+        <robotNamespace>demo</robotNamespace>
+        <topicName>p3d_demo</topicName>
+        <bodyName>shoulder_link</bodyName>
+        <frameName>wrist_3_link</frameName>
+        <updateRate>1</updateRate>
+        <xyzOffset>10 10 10</xyzOffset>
+        <rpyOffset>0.1 0.1 0.1</rpyOffset>
+        <gaussianNoise>0.01</gaussianNoise>
+
       </plugin>
       <pose frame=''>0 0 0.1 0 -0 0</pose>
     </model>
