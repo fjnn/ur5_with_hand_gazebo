@@ -4,6 +4,7 @@
   <arg name="paused" default="false"/>
   <arg name="gui" default="true"/>
   
+	<!-- send robot urdf to param server -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ur5_with_hand_gazebo)/urdf/ur5_robot.urdf.xacro'" />
   
   <!--<env name="GAZEBO_MODEL_PATH" value="/home/gizem/catkin_ws/src:/home/gizem/catkin_ws/src/ur5_with_hand_gazebo/models:~/.gazebo/models:${GAZEBO_MODEL_PATH}"/>-->
@@ -16,12 +17,11 @@
     <arg name="gui" value="$(arg gui)"/>
   </include>
 
-  <!-- send robot urdf to param server 
-  <include file="$(find ur_description)/launch/ur5_upload.launch">
-    <arg name="limited" value="$(arg limited)"/>
-  </include>-->
-  
-  
+	  <!-- Combine joint values 
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>-->
+
+  <!-- Show in Rviz   -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ur5_with_hand_gazebo)/config/ur5_with_camera.rviz"/>
   
 
   <!-- push robot_description to factory and spawn robot in gazebo -->
