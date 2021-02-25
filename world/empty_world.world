@@ -2,6 +2,16 @@
 
 <sdf version="1.6">
 	<world name="default">
+		<scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.25 0.25 0.25 1</background>
+      <shadows>true</shadows>
+    </scene>
+    <light type="directional" name="some_light">
+      <diffuse>0.7 0.7 0.7 0</diffuse>
+      <specular>1 1 1 0</specular>
+      <direction>-1 -1 -1</direction>
+    </light>
 		<!-- A global light source -->
 		<include>
 			<uri>model://sun</uri>
@@ -11,38 +21,116 @@
 		<include>
 			<uri>model://ground_plane</uri>
 		</include>
-        <!-- A postbox -->
-
+		
 		<include>
-			<uri>model://postbox</uri>
-            <static>false</static>
-            <pose>5 7 2 0 0 0</pose>
-		</include>
-
-
+			<uri>model://cafe_table</uri>
+						<static>true</static>
+            <pose>0 1 0 0 0 0</pose>
+            <scale>10 1 1</scale>
+		</include>-->
+		
 		 <!-- Our custom model
 		<include>
 			<uri>model://big_circle_path</uri>
 						<static>false</static>
             <pose>-5 7 2 0 0 0</pose>
 		</include>-->
-
-		<model name='big_triangle_path'>
-      <pose frame=''>-5 7 2 0 0 0</pose>
-      <static>1</static>
+		
+		<model name='big_square_path'>
+      <pose frame=''>-0.25 0.78 0.78 0 0 0</pose>
+      <static>false</static>
       <link name='link'>
         <inertial>
           <mass>1</mass>
-          <inertia>
-            <ixx>0.083</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>0.083</iyy>
-            <iyz>0</iyz>
-            <izz>0.083</izz>
-          </inertia>
         </inertial>
         <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://bigSquare/BigSquare.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://bigSquare/BigSquare.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    
+		<model name='big_circle_path'>
+      <pose frame=''>0 0.78 0.78 0 0 0</pose>
+      <static>false</static>
+      <link name='link'>
+        <inertial>
+          <mass>1</mass>
+        </inertial>
+        <collision name='collision'>
+					<pose frame=''>-0.115 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>model://bigCircle/BigCircle.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+					<pose frame=''>-0.115 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <uri>model://bigCircle/BigCircle.stl</uri>
+              <scale>0.001 0.001 0.001</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+
+		<model name='big_triangle_path'>
+      <pose frame=''>0.25 0.78 0.78 0 0 0</pose>
+      <static>false</static>
+      <link name='link'>
+        <inertial>
+          <mass>1</mass>
+        </inertial>
+        <collision name='collision'>
+					<pose frame=''>-0.1 0.115 0 0 -0 0</pose>
           <geometry>
             <mesh>
               <uri>model://bigTriangle/BigTriangle.stl</uri>
@@ -64,6 +152,7 @@
           </surface>
         </collision>
         <visual name='visual'>
+					<pose frame=''>-0.1 0.115 0 0 0 0</pose>
           <geometry>
             <mesh>
               <uri>model://bigTriangle/BigTriangle.stl</uri>
@@ -76,6 +165,8 @@
         <kinematic>0</kinematic>
       </link>
     </model>
+    
+    
 
 		
 	</world>
