@@ -67,13 +67,13 @@ def joint_space_control(arm_group, **kwargs):
     # print "click Enter to continue"
     # dummy_input = raw_input()
 #    arm_group_variable_values[4] = 1.0
-    arm_group.set_joint_value_target(arm_group_variable_values)
+    # arm_group.set_joint_value_target(arm_group_variable_values)
     for joint,value in kwargs.items():
         joint_int = joint_names_to_numbers(joint)
         joint_val = value
         arm_group_variable_values[joint_int] = joint_val
         arm_group.set_joint_value_target(arm_group_variable_values)
-    plan_arm = arm_group.go() 
+    plan_arm = arm_group.go(wait=False) 
            
 
 def main():
