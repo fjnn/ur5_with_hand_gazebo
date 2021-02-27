@@ -24,6 +24,7 @@ _CALIBRATION_TH = 20
 _ROSTIME_START = 0
 prev = 0
 now = 0
+hand_link = np.array([0.0, 0.04, 0.0])
 
 
 class IMUsubscriber:
@@ -37,19 +38,18 @@ class IMUsubscriber:
         self.q_elbow_init = Quaternion(0, 0, 0, 1.0)
         self.q_wrist_init = Quaternion(0, 0, 0, 1.0)
 
-
         self.q_elbow = Quaternion(0, 0, 0, 1.0)
         self.q_wrist = Quaternion(0, 0, 0, 1.0)
-
+        self.q_wrist_sensorframe = Quaternion(0, 0, 0, 1.0)
 
         self.acc_elbow = Vector3()
         self.acc_wrist = Vector3()
-
 
         self.gyro_elbow = Vector3()
         self.gyro_wrist = Vector3()
 
         self.p_hand = Vector3()
+        self.wrist_angles = np.array([0.0, 0.0, 0.0])
         self.human_joint_imu = JointState()
         self.human_joint_imu.name = ['left_wrist_0', 'left_wrist_1', 'left_wrist_2']
         self.human_joint_imu.position = [0.0, 0.0, 0.0]
@@ -105,13 +105,18 @@ class IMUsubscriber:
             self.q_wrist_init = kinematic.q_invert(self.wrist_measurement.orientation)
             # print "calibrating wrist"
         self.q_wrist = kinematic.q_multiply(self.q_wrist_init, self.wrist_measurement.orientation)
-        q_wrist_sensorframe = kinematic.q_multiply(kinematic.q_invert(self.q_elbow), self.q_wrist)
-        self.wrist_angles = q2e(kinematic.q_tf_convert(q_wrist_sensorframe), axes='sxyz')
+        self.q_wrist_sensorframe = kinematic.q_multiply(kinematic.q_invert(self.q_elbow), self.q_wrist)
+        self.wrist_angles = q2e(kinematic.q_tf_convert(self.q_wrist_sensorframe), axes='sxyz')
         self.acc_wrist = self.wrist_measurement.linear_acceleration
         self.gyro_wrist = self.wrist_measurement.angular_velocity
         # Update joint angles
         self.human_joint_imu.position[0] = self.wrist_angles[0]  # pitch
         self.human_joint_imu.position[1] = self.wrist_angles[1]  # yaw
         self.human_joint_imu.position[2] = self.wrist_angles[2]  # roll
+        
+    def hand_pos_calculate(self, v=hand_link):
+				v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+				print "v_rotated:", v_rotated
+				return v_rotated
         
 
