@@ -14,11 +14,11 @@ import moveit_commander
 import geometry_msgs.msg
 from sensor_msgs.msg import JointState
 
-from Classes.IMU_class_full_arm import IMUsubscriber
+from Classes.IMU_class_elbow_angle import IMUsubscriber
 
 
 
-#IMU = IMUsubscriber()
+IMU = IMUsubscriber()
 #TODO: initiate human model
 
 
@@ -31,9 +31,6 @@ def movegroup_init():
 	robot = moveit_commander.RobotCommander()
 
 	arm_group = moveit_commander.MoveGroupCommander("manipulator")
-	arm_group.set_named_target("home")
-	plan_arm = arm_group.go()  
-	rospy.sleep(5)
 	arm_group.set_named_target("vertical")
 	plan_arm = arm_group.go()  
 	return arm_group
@@ -66,68 +63,56 @@ def joint_space_control(arm_group, **kwargs):
     arm_group.clear_pose_targets()
     
     arm_group_variable_values = arm_group.get_current_joint_values()
-    print "============ Arm joint values: ", arm_group_variable_values
-    print "click Enter to continue"
-    dummy_input = raw_input()
+    # print "============ Arm joint values: ", arm_group_variable_values
+    # print "click Enter to continue"
+    # dummy_input = raw_input()
 #    arm_group_variable_values[4] = 1.0
-#    arm_group.set_joint_value_target(arm_group_variable_values)
+    arm_group.set_joint_value_target(arm_group_variable_values)
     for joint,value in kwargs.items():
         joint_int = joint_names_to_numbers(joint)
         joint_val = value
         arm_group_variable_values[joint_int] = joint_val
         arm_group.set_joint_value_target(arm_group_variable_values)
     plan_arm = arm_group.go() 
-    
-def rt_joints_mapping(hand_group, arm_group):
-    """
-    IMU readings will be mapped real time.
-    Not move groups but action-server clients will be used
-    """
-    arm_group.clear_pose_targets()
-    hand_group.clear_pose_targets()
-    
-    arm_group_variable_values = arm_group.get_current_joint_values()
-    print "============ Arm joint values: ", arm_group_variable_values
-    hand_group_variable_values = hand_group.get_current_joint_values()
-    print "============ Hand joint values: ", hand_group_variable_values
-    print "click Enter to continue"
-    dummy_input = raw_input()
-    arm_group_variable_values[4] = 1.0
-    arm_group.set_joint_value_target(arm_group_variable_values)
-    
-    plan = arm_group.plan()
-    plan_arm = arm_group.go()  
-    
-    dummy_input = raw_input()
-        
+           
 
 def main():
     try:
-        hand_group, arm_group = movegroup_init()
-#        rospy.sleep(5)
-        joint_space_control(arm_group, wrist_2=1.0, wrist_1=1.0)
-#        rt_joints_mapping(hand_group, arm_group)
-        sys.exit("done")
-#        IMU.init_subscribers_and_publishers()
+		arm_group = movegroup_init()
+		# rospy.sleep(5)
+		joint_space_control(arm_group, wrist_2=0.0, wrist_1=0.0)
+		# rt_joints_mapping(hand_group, arm_group)
+		IMU.init_subscribers_and_publishers()
 #        
 #        hand_group.set_named_target("handOpen")
 #        plan_hand = hand_group.go()  
 #        arm_group.set_named_target("home")
 #        plan_arm = arm_group.go()  
 #        Leap.init_subscribers_and_publishers()
-        
-#        while not rospy.is_shutdown():
-#            now = time.time()
-#            prev = 0
-#            # print "++++", index
-#    #        index += 1  This index is to get 5 sensor readings and compute 1 KF estimation. Check pose_node.py in my_human_pkg for more
-#            # print "total: ", (now - start)
-#            # print "interval:", (now - prev), "calibration_flag:", IMU.calibration_flag
-#            IMU.update()
-#            IMU.r.sleep()
-#            prev = now
-#            Leap.update()
-#            Leap.r.sleep()
+
+		arm_group_variable_values = arm_group.get_current_joint_values()
+		print "============ Arm joint values: ", arm_group_variable_values
+		print "click Enter to continue"
+		dummy_input = raw_input()
+		prev = time.time()
+		angle = 0.0
+		while not rospy.is_shutdown():
+			now = time.time()
+			# print "++++", index
+			#        index += 1  This index is to get 5 sensor readings and compute 1 KF estimation. Check pose_node.py in my_human_pkg for more
+			# print "total: ", (now - start)
+			# print "interval:", (now - prev), "calibration_flag:", IMU.calibration_flag
+			IMU.update()
+			angle_x = float("{:.2f}".format(IMU.human_joint_imu.position[0]))
+			angle_y = float("{:.2f}".format(IMU.human_joint_imu.position[1]))
+			angle_z = float("{:.2f}".format(IMU.human_joint_imu.position[2]))
+			if(IMU.calibration_flag>20):
+				# print "interval:", (now - prev), "calibration_flag:", IMU.calibration_flag, "w1:", IMU.human_joint_imu.position[0], "w2:", IMU.human_joint_imu.position[1], "w3:", IMU.human_joint_imu.position[2]
+				print "w1:", angle_x, "w2:", angle_y, "w3:", angle_z
+				joint_space_control(arm_group, wrist_1=angle_x)
+				IMU.r.sleep()
+				prev = now
+
 
     except KeyboardInterrupt:
         moveit_commander.roscpp_shutdown()
