@@ -41,7 +41,7 @@ def movegroup_init():
     return arm_group
     
 
-def task_space_control():
+def task_space_control(arm_group):
     """
     Send goal pose to robot.
     """
@@ -51,6 +51,8 @@ def task_space_control():
     GOAL_POSE.position.y = WRIST_POSE.pose.pose.position.y + human_hand_pos[1]
     GOAL_POSE.position.z = WRIST_POSE.pose.pose.position.z + human_hand_pos[2]
     print GOAL_POSE
+    arm_group.set_pose_target(GOAL_POSE)
+    plan_arm = arm_group.go(wait=False) 
     
         
 #        hand_group.set_named_target("handOpen")
@@ -107,7 +109,7 @@ def main():
 		while not rospy.is_shutdown():
 			# print "hand", HAND_POSE.pose.pose.position
 			# print "wrist", WRIST_POSE.pose.pose.position
-			task_space_control()
+			task_space_control(arm_group)
 #            now = time.time()
 #            prev = 0
 #            # print "++++", index
