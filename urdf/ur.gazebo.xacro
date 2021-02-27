@@ -29,7 +29,16 @@
 			<plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
 				<frameName>map</frameName>
 				<bodyName>${prefix}ee_link</bodyName>
-				<topicName>odom</topicName>
+				<topicName>odom_ee_link</topicName>
+				<updateRate>30.0</updateRate>
+			</plugin>
+		</gazebo>
+		
+		<gazebo>
+			<plugin name="ground_truth2" filename="libgazebo_ros_p3d.so">
+				<frameName>map</frameName>
+				<bodyName>${prefix}wrist_1_link</bodyName>
+				<topicName>odom_wrist_1_link</topicName>
 				<updateRate>30.0</updateRate>
 			</plugin>
 		</gazebo>
