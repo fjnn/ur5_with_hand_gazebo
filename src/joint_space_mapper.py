@@ -109,7 +109,7 @@ def main():
 			if(IMU.calibration_flag>20):
 				# print "interval:", (now - prev), "calibration_flag:", IMU.calibration_flag, "w1:", IMU.human_joint_imu.position[0], "w2:", IMU.human_joint_imu.position[1], "w3:", IMU.human_joint_imu.position[2]
 				print "w1:", angle_x, "w2:", angle_y, "w3:", angle_z
-				joint_space_control(arm_group, wrist_1=angle_x)
+				joint_space_control(arm_group, wrist_1=angle_x, wrist_2=angle_y, wrist_3=angle_z)
 				IMU.r.sleep()
 				prev = now
 
