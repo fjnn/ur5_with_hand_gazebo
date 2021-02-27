@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<robot name="myhuman" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Constants for human dimensions -->
+  <xacro:property name="PI" value="3.1415926535897931"/>
+  <xacro:property name="mass" value="1" /> <!-- arbitrary value for mass -->
+  <xacro:property name="width" value="0.1" /> <!-- Square dimensions (widthxwidth) of beams -->
+  <xacro:property name="human_offset" value="0.0 0.0 0.0" /> <!-- Square dimensions (widthxwidth) of beams -->
+  <xacro:property name="length_upperarm" value=".35" /> <!-- Link 1 -->
+  <xacro:property name="length_forearm" value="0.3" /> <!-- Link 2 -->
+  <xacro:property name="length_hand" value="0.1" /> <!-- Link 3 -->
+  <xacro:property name="length_finger" value="0.05" /> <!-- Link 3 -->
+  <xacro:property name="camera_link" value="0.05" /> <!-- Size of square 'camera' box Attach to head after-->
+
+  <!-- Import all Gazebo-customization elements, including Gazebo colors -->
+  <xacro:include filename="$(find ur5_with_hand_moveit_config)/human_description/urdf/human_arm.gazebo" />
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find ur5_with_hand_moveit_config)/human_description/urdf/materials.xacro" />
+  <!-- Import Spherical joint macro -->
+  <xacro:include filename="$(find ur5_with_hand_moveit_config)/human_description/urdf/spherical.urdf.xacro"/>
+
+  <xacro:include filename="$(find ur5_with_hand_moveit_config)/human_description/urdf/spherical.urdf.xacro"/>
+  <create/>
+
+  <link name="world"/>
+  <joint name="world_joint" type="fixed">
+    <parent link="world"/>
+    <child link="human_torso"/>
+    <origin rpy="0.0 0.0 0.0" xyz="${human_offset}"/>
+  </joint>
+
+  <link name="human_torso">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <sphere radius="0.05"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+  </link>
+
+  <xacro:spherical name="human_shoulder_joint" parent="human_torso" child="human_upperarm_link">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </xacro:spherical>
+
+    <link name="human_upperarm_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 ${length_upperarm*0.5}"/>
+        <geometry>
+          <cylinder radius="${length_upperarm*0.1}" length="${length_upperarm}"/>
+        </geometry>
+        <material name="blue"/>
+      </visual>
+    </link>
+
+    <joint name="human_elbow_joint" type="revolute">
+      <axis xyz="-1 0 0"/> <!-- rotate around z-axis-->
+      <limit effort="1000.0" lower="-3.14" upper="3.14" velocity="0.5"/>
+      <origin rpy="0 0 0" xyz="0 0 ${length_upperarm}"/>
+      <parent link="human_upperarm_link"/>
+      <child link="human_forearm_link"/>
+    </joint>
+
+    <link name="human_forearm_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 ${length_forearm*0.5}"/>
+        <geometry>
+          <cylinder radius="${length_forearm*0.1}" length="${length_forearm}"/>
+        </geometry>
+        <material name="blue"/>
+      </visual>
+    </link>
+
+    <xacro:spherical name="human_wrist_joint" parent="human_forearm_link" child="human_hand_link">
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+    </xacro:spherical>
+
+    <link name="human_hand_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 ${length_hand*0.5}"/>
+        <geometry>
+          <cylinder radius="${length_hand*0.1}" length="${length_hand}"/>
+        </geometry>
+        <material name="blue"/>
+      </visual>
+    </link>
+
+    <joint name="hand_to_finger1_joint" type="prismatic">
+      <axis xyz="1 0 0"/> <!-- move around z-axis-->
+      <limit effort="1000.0" lower="0" upper="1.0" velocity="0.5"/>
+      <origin rpy="0 0 0" xyz="0 0 ${length_hand}"/>  <!-- half of the height of the box 0.5-->
+      <parent link="human_hand_link"/>
+      <child link="human_finger1_link"/>
+    </joint>
+
+    <joint name="hand_to_finger2_joint" type="prismatic">
+      <axis xyz="-1 0 0"/> <!-- move around z-axis-->
+      <limit effort="1000.0" lower="0" upper="1.0" velocity="0.5"/>
+      <origin rpy="0 0 0" xyz="0 0 ${length_hand}"/>  <!-- half of the height of the box 0.5-->
+      <parent link="human_hand_link"/>
+      <child link="human_finger2_link"/>
+    </joint>
+
+    <link name="human_finger1_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="${length_hand*0.1} 0 ${length_finger*0.5}"/>
+        <geometry>
+          <box size="${length_finger*0.3} ${length_finger*0.3} ${length_finger}"/>
+        </geometry>
+        <material name="white"/>
+      </visual>
+    </link>
+
+    <link name="human_finger2_link">
+      <visual>
+        <origin rpy="0 0 0" xyz="${-length_hand*0.1} 0 ${length_finger*0.5}"/>
+        <geometry>
+          <box size="${length_finger*0.3} ${length_finger*0.3} ${length_finger}"/>
+        </geometry>
+        <material name="white"/>
+      </visual>
+    </link>
+
+</robot>
