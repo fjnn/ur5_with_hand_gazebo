@@ -46,6 +46,33 @@ def q_scale(q, s):
     '''
     q_scaled = Quaternion(s*q.x, s*q.y, s*q.z, s*q.w)
     return q_scaled
+    
+def v_to_q(v):
+    '''
+	Convert a vector to a quaternion
+	'''
+    
+    v_converted = Quaternion(0, 0, 0, 1.0)
+		
+    if (type(v) == np.ndarray and v.size == 3):
+        v_converted = Quaternion(v[0], v[1], v[2], 0.0)
+        return v_converted
+    else:
+        print "Unknown type v_to_q"
+        return v_converted
+            
+def q_to_v(q):
+    '''
+	Convert a quaternion to back to the vector form again
+	'''
+    q_converted = np.array([0.0, 0.0, 0.0])
+		
+    if (type(q) == Quaternion and q.w == 0.0):
+        q_converted = np.array([q.x, q.y, q.z])
+        return q_converted
+    else:
+        print "Unknown type q_to_v"
+        return q_converted
 
 
 def q_rotate(q, v):
@@ -155,13 +182,14 @@ def v_magnitude(v):
 
 
 def q_norm(q):
-    try:
-        q_normalized = q_scale(q, q_magnitude(q)**(-1))
-    except ZeroDivisionError:
-        print("Magnitude is zero")
-        q_normalized = q
-    finally:
-        return q_normalized
+		q_normalized = q
+		try:
+				q_normalized = q_scale(q, q_magnitude(q)**(-1))
+		except ZeroDivisionError:
+				print("Magnitude is zero")
+				q_normalized = q
+		finally:
+				return q_normalized
 
 
 def find_angle(a, b):
