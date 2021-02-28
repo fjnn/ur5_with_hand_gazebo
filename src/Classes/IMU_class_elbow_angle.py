@@ -14,6 +14,7 @@ from sensor_msgs.msg import JointState
 from sensor_msgs.msg import Imu
 from geometry_msgs.msg import Vector3
 from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Pose
 from tf.transformations import quaternion_matrix as q2m
 from tf.transformations import euler_from_quaternion as q2e
 from tf.transformations import euler_from_matrix as m2e
@@ -41,6 +42,7 @@ class IMUsubscriber:
         self.q_elbow = Quaternion(0, 0, 0, 1.0)
         self.q_wrist = Quaternion(0, 0, 0, 1.0)
         self.q_wrist_sensorframe = Quaternion(0, 0, 0, 1.0)
+        self.tf_wrist = Pose()
 
         self.acc_elbow = Vector3()
         self.acc_wrist = Vector3()
@@ -115,8 +117,8 @@ class IMUsubscriber:
         self.human_joint_imu.position[2] = self.wrist_angles[2]  # roll
         
     def hand_pos_calculate(self, v=hand_link):
-				v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
-				print "v_rotated:", v_rotated
-				return v_rotated
+				self.tf_wrist.position = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+				self.tf_wrist.orientation = self.q_wrist_sensorframe
+				print "human wrist TF:", self.tf_wrist
         
 

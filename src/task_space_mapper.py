@@ -14,12 +14,16 @@ import moveit_commander
 from geometry_msgs.msg import Pose
 from sensor_msgs.msg import JointState
 from nav_msgs.msg import Odometry
+import tf
+import math
 
 from Classes.IMU_class_elbow_angle import IMUsubscriber
 
 HAND_POSE = Odometry()
 WRIST_POSE = Odometry()
 GOAL_POSE = Pose()
+
+s = 1.0 # Scale between robot wrist_1_link to ee_link distance and human wrist origin to hand position
 
 IMU = IMUsubscriber()
 #Leap = LeapSubscriber()
@@ -45,11 +49,12 @@ def task_space_control(arm_group):
     """
     Send goal pose to robot.
     """
-    global GOAL_POSE
-    human_hand_pos = IMU.hand_pos_calculate()
-    GOAL_POSE.position.x = WRIST_POSE.pose.pose.position.x + human_hand_pos[0]
-    GOAL_POSE.position.y = WRIST_POSE.pose.pose.position.y + human_hand_pos[1]
-    GOAL_POSE.position.z = WRIST_POSE.pose.pose.position.z + human_hand_pos[2]
+    global GOAL_POSE,s
+    IMU.hand_pos_calculate()
+    GOAL_POSE.position.x = WRIST_POSE.pose.pose.position.x + s*IMU.tf_wrist.position.x
+    GOAL_POSE.position.y = WRIST_POSE.pose.pose.position.y + s*IMU.tf_wrist.position.y
+    GOAL_POSE.position.z = WRIST_POSE.pose.pose.position.z + s*IMU.tf_wrist.position.z
+    GOAL_POSE.orientation = IMU.tf_wrist.orientation
     print GOAL_POSE
     arm_group.set_pose_target(GOAL_POSE)
     plan_arm = arm_group.go(wait=False) 
@@ -101,15 +106,16 @@ def main():
 #        rt_joints_mapping(hand_group, arm_group)
 		# sys.exit("done")
 		IMU.init_subscribers_and_publishers()
-		rospy.Subscriber('/odom_ee_link',Odometry,odometryCb_ee_link)
-		rospy.Subscriber('/odom_wrist_1_link',Odometry,odometryCb_wrist_1_link)
+		# rospy.Subscriber('/odom_ee_link',Odometry,odometryCb_ee_link)
+		# rospy.Subscriber('/odom_wrist_1_link',Odometry,odometryCb_wrist_1_link)
+		
+		listener = tf.TransformListener()
 		arm_group = movegroup_init()
 #        
         
 		while not rospy.is_shutdown():
-			# print "hand", HAND_POSE.pose.pose.position
-			# print "wrist", WRIST_POSE.pose.pose.position
-			task_space_control(arm_group)
+			(trans,rot) = listener.lookupTransform('/odom_ee_link/pose/pose', '/odom_wrist_1_link/pose/pose', rospy.Time(0))
+			task_space_control(arm_group, trans, rot)
 #            now = time.time()
 #            prev = 0
 #            # print "++++", index
