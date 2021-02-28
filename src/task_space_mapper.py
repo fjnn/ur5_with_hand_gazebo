@@ -106,16 +106,16 @@ def main():
 #        rt_joints_mapping(hand_group, arm_group)
 		# sys.exit("done")
 		IMU.init_subscribers_and_publishers()
-		# rospy.Subscriber('/odom_ee_link',Odometry,odometryCb_ee_link)
-		# rospy.Subscriber('/odom_wrist_1_link',Odometry,odometryCb_wrist_1_link)
+		rospy.Subscriber('/odom_ee_link',Odometry,odometryCb_ee_link)
+		rospy.Subscriber('/odom_wrist_1_link',Odometry,odometryCb_wrist_1_link)
 		
-		listener = tf.TransformListener()
+		# listener = tf.TransformListener()
 		arm_group = movegroup_init()
 #        
         
 		while not rospy.is_shutdown():
-			(trans,rot) = listener.lookupTransform('/odom_ee_link/pose/pose', '/odom_wrist_1_link/pose/pose', rospy.Time(0))
-			task_space_control(arm_group, trans, rot)
+			# (trans,rot) = listener.lookupTransform('/odom_ee_link/pose/pose', '/odom_wrist_1_link/pose/pose', rospy.Time(0))
+			task_space_control(arm_group)
 #            now = time.time()
 #            prev = 0
 #            # print "++++", index

@@ -117,7 +117,10 @@ class IMUsubscriber:
         self.human_joint_imu.position[2] = self.wrist_angles[2]  # roll
         
     def hand_pos_calculate(self, v=hand_link):
-				self.tf_wrist.position = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+				v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+				self.tf_wrist.position.x = v_rotated[0]
+				self.tf_wrist.position.y = v_rotated[1]
+				self.tf_wrist.position.z = v_rotated[2]
 				self.tf_wrist.orientation = self.q_wrist_sensorframe
 				print "human wrist TF:", self.tf_wrist
         
