@@ -59,8 +59,9 @@ def task_space_control(arm_group):
     GOAL_POSE.position.y = WRIST_POSE.pose.pose.position.y + s*IMU.tf_wrist.position.y
     GOAL_POSE.position.z = WRIST_POSE.pose.pose.position.z + s*IMU.tf_wrist.position.z
     GOAL_POSE.orientation = IMU.tf_wrist.orientation
-    # print GOAL_POSE
+    print "here"
     # arm_group.set_pose_target(GOAL_POSE)
+    # print "here2"
     # plan_arm = arm_group.go(wait=True) 
     
         
@@ -107,11 +108,6 @@ def task_space_control(arm_group):
 # - Rotation: in Quaternion [0.000, 0.000, -0.707, 0.707]
             # in RPY (radian) [0.000, 0.000, -1.571]
             # in RPY (degree) [0.000, 0.002, -89.999]
-
-
- 
-    
-    pass
 
 
 

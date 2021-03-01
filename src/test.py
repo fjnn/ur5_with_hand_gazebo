@@ -139,8 +139,8 @@ result = integrate.simps(v)
 # from numpy vector to quaternion
 a = np.array([1, 0, 0])  # dönünce [0, 1, 0] bekliyorum
 a_quat = Quaternion(a[0], a[1], a[2], 0)
-b = np.array([4,5,2])
-rot_b_quat = Quaternion(0.1182281, 0.1970468, 0.3546842, 0.9063078)
+b = np.array([0.4, 0.0, 0.0])
+rot_b_quat = Quaternion(0.0, 0.7071068, 0.0, 0.7071068)
 q_z90 = Quaternion(0, 0, -0.7071068, 0.7071068)
 # rotated = kinematic.q_multiply(q_z90, a_quat)
 rotated = kinematic.q_rotate(rot_b_quat, b)

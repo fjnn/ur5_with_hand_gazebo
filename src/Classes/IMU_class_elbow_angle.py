@@ -27,7 +27,7 @@ _ROSTIME_START = 0
 _HAND_POS_INIT = False
 prev = 0
 now = 0
-hand_link = np.array([0.0, 0.04, 0.0])
+hand_link = np.array([0.04, 0.0, 0.0])
 
 
 class IMUsubscriber:
@@ -129,21 +129,48 @@ class IMUsubscriber:
 	"""
 	global _HAND_POS_INIT
 	if _HAND_POS_INIT == False:
-	    self.hand_pos_init(robot_ee_pose, v=v)
+	    print "Move the hand to the BENT pose. Press Enter..."
+	    dummy_input = raw_input()
 	    self.q_wrist_tsm_init = kinematic.q_invert(self.q_wrist_sensorframe)
 	    _HAND_POS_INIT = True
 	    print "calibration:", self.calibration_flag, "self.q_wrist_tsm_init:", self.q_wrist_tsm_init
 	else:
-	    self.q_wrist_tsm = kinematic.q_multiply(self.q_wrist_tsm_init, self.q_wrist_sensorframe)
-	    print "q_wrist_tsm:", self.q_wrist_tsm
-	    
-	    v_rotated = kinematic.q_rotate(self.q_wrist_tsm, hand_link)
+	    # self.q_wrist_tsm = kinematic.q_multiply(self.q_wrist_tsm_init, self.q_wrist_sensorframe)
+	    # print "q_wrist_tsm:", self.q_wrist_tsm
+	    print "q_rot:", self.q_wrist_sensorframe
+	    print "hand_link:", hand_link
+	    v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+	    print "v_rotated:", v_rotated
 	    self.tf_wrist.position.x = v_rotated[0]
 	    self.tf_wrist.position.y = v_rotated[1]
 	    self.tf_wrist.position.z = v_rotated[2]
-	    self.tf_wrist.orientation = self.q_wrist_sensorframe
-	    print "human wrist TF:", self.tf_wrist
+	    self.tf_wrist.orientation = self.q_wrist_tsm
+	    # print "human wrist TF:", self.tf_wrist
 	    sys.exit("Done")
+	    
+    # def hand_pos_calculate_bk(self, robot_ee_pose, v=hand_link):
+	# """
+	# Calculate current hand_pose (self.tf_wrist)
+	# @param robot_ee_pose: type Pose(), robot ee_link position&orientation
+	# @param v=hand_link default
+	# """
+	# global _HAND_POS_INIT
+	# if _HAND_POS_INIT == False:
+	    # self.hand_pos_init(robot_ee_pose, v=v)
+	    # self.q_wrist_tsm_init = kinematic.q_invert(self.q_wrist_sensorframe)
+	    # _HAND_POS_INIT = True
+	    # print "calibration:", self.calibration_flag, "self.q_wrist_tsm_init:", self.q_wrist_tsm_init
+	# else:
+	    # self.q_wrist_tsm = kinematic.q_multiply(self.q_wrist_tsm_init, self.q_wrist_sensorframe)
+	    # print "q_wrist_tsm:", self.q_wrist_tsm
+	    
+	    # v_rotated = kinematic.q_rotate(self.q_wrist_tsm, hand_link)
+	    # self.tf_wrist.position.x = v_rotated[0]
+	    # self.tf_wrist.position.y = v_rotated[1]
+	    # self.tf_wrist.position.z = v_rotated[2]
+	    # self.tf_wrist.orientation = self.q_wrist_sensorframe
+	    # print "human wrist TF:", self.tf_wrist
+	    # sys.exit("Done")
 				
     def hand_pos_init(self, robot_ee_pose, v=hand_link):
 	"""
