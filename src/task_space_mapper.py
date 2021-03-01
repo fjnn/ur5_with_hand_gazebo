@@ -59,9 +59,9 @@ def task_space_control(arm_group):
     GOAL_POSE.position.y = WRIST_POSE.pose.pose.position.y + s*IMU.tf_wrist.position.y
     GOAL_POSE.position.z = WRIST_POSE.pose.pose.position.z + s*IMU.tf_wrist.position.z
     GOAL_POSE.orientation = IMU.tf_wrist.orientation
-    print GOAL_POSE
-    arm_group.set_pose_target(GOAL_POSE)
-    plan_arm = arm_group.go(wait=True) 
+    # print GOAL_POSE
+    # arm_group.set_pose_target(GOAL_POSE)
+    # plan_arm = arm_group.go(wait=True) 
     
         
 #        hand_group.set_named_target("handOpen")
@@ -160,7 +160,10 @@ def main():
 			
 			while not rospy.is_shutdown():
 				# (trans,rot) = listener.lookupTransform('/odom_ee_link/pose/pose', '/odom_wrist_1_link/pose/pose', rospy.Time(0))
-				task_space_control(arm_group)
+				if IMU.calibration_flag < 21:
+					print "calibration:", IMU.calibration_flag
+				else:
+					task_space_control(arm_group)
 				#            now = time.time()
 				#            prev = 0
 				#            # print "++++", index

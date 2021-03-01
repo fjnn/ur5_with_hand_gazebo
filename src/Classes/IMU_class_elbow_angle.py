@@ -51,6 +51,9 @@ class IMUsubscriber:
 
         self.gyro_elbow = Vector3()
         self.gyro_wrist = Vector3()
+	
+	self.q_wrist_tsm_init = Quaternion(1.0, 1.0, 1.0, 1.0)
+	self.q_wrist_tsm = Quaternion(0, 0, 0, 1.0)
 
         self.p_hand = Vector3()
         self.wrist_angles = np.array([0.0, 0.0, 0.0])
@@ -127,15 +130,20 @@ class IMUsubscriber:
 	global _HAND_POS_INIT
 	if _HAND_POS_INIT == False:
 	    self.hand_pos_init(robot_ee_pose, v=v)
+	    self.q_wrist_tsm_init = kinematic.q_invert(self.q_wrist_sensorframe)
 	    _HAND_POS_INIT = True
+	    print "calibration:", self.calibration_flag, "self.q_wrist_tsm_init:", self.q_wrist_tsm_init
 	else:
+	    self.q_wrist_tsm = kinematic.q_multiply(self.q_wrist_tsm_init, self.q_wrist_sensorframe)
+	    print "q_wrist_tsm:", self.q_wrist_tsm
+	    
+	    v_rotated = kinematic.q_rotate(self.q_wrist_tsm, hand_link)
+	    self.tf_wrist.position.x = v_rotated[0]
+	    self.tf_wrist.position.y = v_rotated[1]
+	    self.tf_wrist.position.z = v_rotated[2]
+	    self.tf_wrist.orientation = self.q_wrist_sensorframe
+	    print "human wrist TF:", self.tf_wrist
 	    sys.exit("Done")
-	v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
-	self.tf_wrist.position.x = v_rotated[0]
-	self.tf_wrist.position.y = v_rotated[1]
-	self.tf_wrist.position.z = v_rotated[2]
-	self.tf_wrist.orientation = self.q_wrist_sensorframe
-	print "human wrist TF:", self.tf_wrist
 				
     def hand_pos_init(self, robot_ee_pose, v=hand_link):
 	"""
@@ -145,10 +153,12 @@ class IMUsubscriber:
 	"""
 	# hand initial pose : bend 90 degrees
 	# robot initial pose should be in this regard
+	print "q_before:", self.q_wrist_sensorframe
 	print "Move the hand to the BENT pose. Press Enter..."
 	dummy_input = raw_input()
-	print "robot pose:", robot_ee_pose
+	# print "robot pose:", robot_ee_pose
+	print "q_after:", self.q_wrist_sensorframe
 	v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
-	print "human hand pose:", v_rotated
+	# print "human hand pose:", v_rotated
         
 
