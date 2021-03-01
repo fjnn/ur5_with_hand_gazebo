@@ -124,8 +124,9 @@ class IMUsubscriber:
 	@param robot_ee_pose: type Pose(), robot ee_link position&orientation
 	@param v=hand_link default
 	"""
+	global _HAND_POS_INIT
 	if _HAND_POS_INIT == False:
-	    hand_pos_init(self, robot_ee_pose, v=hand_link)
+	    self.hand_pos_init(robot_ee_pose, v=v)
 	    _HAND_POS_INIT = True
 	else:
 	    sys.exit("Done")
