@@ -7,6 +7,7 @@ This is a subscriber. Subscribes the IMU readings and publishes joint angles
 
 # TODO: if body link lengths are given, publish hand position also
 # TODO: based on IMU_subscriber_class_v2, log data in data_logger
+import sys
 
 import rospy
 import numpy as np
@@ -23,6 +24,7 @@ import Kinematics_with_Quaternions as kinematic
 
 _CALIBRATION_TH = 20
 _ROSTIME_START = 0
+_HAND_POS_INIT = False
 prev = 0
 now = 0
 hand_link = np.array([0.0, 0.04, 0.0])
@@ -116,12 +118,36 @@ class IMUsubscriber:
         self.human_joint_imu.position[1] = self.wrist_angles[1]  # yaw
         self.human_joint_imu.position[2] = self.wrist_angles[2]  # roll
         
-    def hand_pos_calculate(self, v=hand_link):
-				v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
-				self.tf_wrist.position.x = v_rotated[0]
-				self.tf_wrist.position.y = v_rotated[1]
-				self.tf_wrist.position.z = v_rotated[2]
-				self.tf_wrist.orientation = self.q_wrist_sensorframe
-				print "human wrist TF:", self.tf_wrist
+    def hand_pos_calculate(self, robot_ee_pose, v=hand_link):
+	"""
+	Calculate current hand_pose (self.tf_wrist)
+	@param robot_ee_pose: type Pose(), robot ee_link position&orientation
+	@param v=hand_link default
+	"""
+	if _HAND_POS_INIT == False:
+	    hand_pos_init(self, robot_ee_pose, v=hand_link)
+	    _HAND_POS_INIT = True
+	else:
+	    sys.exit("Done")
+	v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+	self.tf_wrist.position.x = v_rotated[0]
+	self.tf_wrist.position.y = v_rotated[1]
+	self.tf_wrist.position.z = v_rotated[2]
+	self.tf_wrist.orientation = self.q_wrist_sensorframe
+	print "human wrist TF:", self.tf_wrist
+				
+    def hand_pos_init(self, robot_ee_pose, v=hand_link):
+	"""
+	One time map robot and human hand.
+	@param robot_ee_pose: type Pose(), robot ee_link position&orientation
+	@param v=hand_link default
+	"""
+	# hand initial pose : bend 90 degrees
+	# robot initial pose should be in this regard
+	print "Move the hand to the BENT pose. Press Enter..."
+	dummy_input = raw_input()
+	print "robot pose:", robot_ee_pose
+	v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+	print "human hand pose:", v_rotated
         
 
