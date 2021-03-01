@@ -121,32 +121,43 @@ class IMUsubscriber:
         self.human_joint_imu.position[1] = self.wrist_angles[1]  # yaw
         self.human_joint_imu.position[2] = self.wrist_angles[2]  # roll
         
-    def hand_pos_calculate(self, robot_ee_pose, v=hand_link):
+    def hand_pos_calculate(self, robot_init, robot_ee_pose, v=hand_link):
 	"""
 	Calculate current hand_pose (self.tf_wrist)
 	@param robot_ee_pose: type Pose(), robot ee_link position&orientation
 	@param v=hand_link default
 	"""
-	global _HAND_POS_INIT
+	global _HAND_POS_INIT, v_rotated_init
 	if _HAND_POS_INIT == False:
+	    v_rotated_init = np.array([0.0, 0.0, 0.0])
 	    print "Move the hand to the BENT pose. Press Enter..."
 	    dummy_input = raw_input()
 	    self.q_wrist_tsm_init = kinematic.q_invert(self.q_wrist_sensorframe)
-	    _HAND_POS_INIT = True
+	    v_rotated_init = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
 	    print "calibration:", self.calibration_flag, "self.q_wrist_tsm_init:", self.q_wrist_tsm_init
+	    _HAND_POS_INIT = True
 	else:
-	    # self.q_wrist_tsm = kinematic.q_multiply(self.q_wrist_tsm_init, self.q_wrist_sensorframe)
-	    # print "q_wrist_tsm:", self.q_wrist_tsm
-	    print "q_rot:", self.q_wrist_sensorframe
-	    print "hand_link:", hand_link
+	    # Init origin poses and the quaternion will be this
+	    self.q_wrist_tsm = kinematic.q_multiply(self.q_wrist_tsm_init, self.q_wrist_sensorframe)
 	    v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
-	    print "v_rotated:", v_rotated
-	    self.tf_wrist.position.x = v_rotated[0]
-	    self.tf_wrist.position.y = v_rotated[1]
-	    self.tf_wrist.position.z = v_rotated[2]
+	    # Assign the displacement
+	    self.tf_wrist.position.x = v_rotated[0]-v_rotated_init[0]
+	    self.tf_wrist.position.y = v_rotated[1]-v_rotated_init[1]
+	    self.tf_wrist.position.z = v_rotated[2]-v_rotated_init[2]
 	    self.tf_wrist.orientation = self.q_wrist_tsm
 	    # print "human wrist TF:", self.tf_wrist
-	    sys.exit("Done")
+	    print "self.tf_wrist.position.z", self.tf_wrist.position.z
+	    
+	    # Send as goal pose
+	    robot_ee_pose.position = self.tf_wrist.position
+	    # robot_ee_pose.position.x += self.tf_wrist.position.x
+	    # robot_ee_pose.position.y += self.tf_wrist.position.y
+	    # robot_ee_pose.position.z += self.tf_wrist.position.z
+	    
+	    robot_ee_pose.orientation = kinematic.q_multiply(robot_init.orientation, self.tf_wrist.orientation)
+	
+	return robot_ee_pose
+	    
 	    
     # def hand_pos_calculate_bk(self, robot_ee_pose, v=hand_link):
 	# """
