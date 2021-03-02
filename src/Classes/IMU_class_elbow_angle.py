@@ -146,7 +146,6 @@ class IMUsubscriber:
 	    self.tf_wrist.position.z = v_rotated[2]-v_rotated_init[2]
 	    self.tf_wrist.orientation = self.q_wrist_tsm
 	    # print "human wrist TF:", self.tf_wrist
-	    print "self.tf_wrist.position.z", self.tf_wrist.position.z
 	    
 	    # Send as goal pose
 	    robot_ee_pose.position = self.tf_wrist.position
