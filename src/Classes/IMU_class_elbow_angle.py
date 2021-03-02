@@ -121,7 +121,7 @@ class IMUsubscriber:
         self.human_joint_imu.position[1] = self.wrist_angles[1]  # yaw
         self.human_joint_imu.position[2] = self.wrist_angles[2]  # roll
         
-    def hand_pos_calculate(self, robot_init, v=hand_link):
+    def hand_pos_calculate(self, v=hand_link):
 			"""
 			Calculate current hand_pose (self.tf_wrist)
 			@param robot_ee_pose: type Pose(), robot ee_link position&orientation
