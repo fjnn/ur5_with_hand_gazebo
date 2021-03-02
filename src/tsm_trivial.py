@@ -205,10 +205,9 @@ def main():
 				IMU.hand_pos_calculate(robot_init)
 				GOAL_POSE = IMU.tf_wrist
 				print "GOAL_POSE", GOAL_POSE
-				sys.exit("Done")
-				cartesian_control_with_IMU(arm_group, hand_pose)
-				wpose = arm_group.get_current_pose().pose
-				print "wpose:", wpose
+				# cartesian_control_with_IMU(arm_group, hand_pose)
+				# wpose = arm_group.get_current_pose().pose
+				# print "wpose:", wpose
 				# print "Enter x_val"
 				# x_val = float(raw_input())
 				# print "Enter y_val"

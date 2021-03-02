@@ -128,6 +128,7 @@ class IMUsubscriber:
 			@param v=hand_link default
 			"""
 			global _HAND_POS_INIT, v_rotated_init
+			hand_pose = Pose()
 			if _HAND_POS_INIT == False:
 					v_rotated_init = np.array([0.0, 0.0, 0.0])
 					print "Move the hand to the BENT pose. Press Enter..."
@@ -148,13 +149,12 @@ class IMUsubscriber:
 					# print "human wrist TF:", self.tf_wrist
 					
 					# Send as goal pose
-					robot_ee_pose.position = self.tf_wrist.position
+					# robot_ee_pose.position = self.tf_wrist.position
 					# robot_ee_pose.position.x += self.tf_wrist.position.x
 					# robot_ee_pose.position.y += self.tf_wrist.position.y
 					# robot_ee_pose.position.z += self.tf_wrist.position.z
 					
 					self.tf_wrist.orientation = kinematic.q_multiply(robot_init.orientation, self.q_wrist_tsm)
-	    
 	    
     # def hand_pos_calculate_bk(self, robot_ee_pose, v=hand_link):
 	# """
