@@ -8,6 +8,8 @@ Refer to: http://docs.ros.org/en/indigo/api/pr2_moveit_tutorials/html/planning/s
 
 import sys
 import time
+import copy
+from math import pi
 
 import rospy
 import moveit_commander
@@ -40,7 +42,7 @@ def movegroup_init():
 	robot = moveit_commander.RobotCommander()
 
 	arm_group = moveit_commander.MoveGroupCommander("manipulator")
-	arm_group.set_named_target("vertical")
+	arm_group.set_named_target("home")
 	plan_arm = arm_group.go()  
 	return arm_group
     
@@ -84,19 +86,58 @@ def joint_space_control(arm_group, **kwargs):
         arm_group.set_joint_value_target(arm_group_variable_values)
     plan_arm = arm_group.go(wait=False) 
     
-def task_space_control(arm_group, x_val, **kwargs):
+def task_space_control(arm_group, *argv):
 	global EE_POSE
 	# rosrun tf tf_echo /world /tool0
 	pose_goal = Pose()
-	pose_goal.orientation.w = 1.0
-	pose_goal.position.x = x_val
-	pose_goal.position.y = 0.15
-	pose_goal.position.z = 0.6
+	pose_goal.orientation.x = 0.707
+	pose_goal.orientation.y = -0.000
+	pose_goal.orientation.z = -0.000
+	pose_goal.orientation.w = 0.707
+	pose_goal.position.x = argv[0]
+	pose_goal.position.y = argv[1]
+	pose_goal.position.z = argv[2]
 	arm_group.set_pose_target(pose_goal)
 
 	## Now, we call the planner to compute the plan and execute it.
 	plan = arm_group.go(wait=True)
 	# Calling `stop()` ensures that there is no residual movement
+	arm_group.stop()
+	# It is always good to clear your targets after planning with poses.
+	# Note: there is no equivalent function for clear_joint_value_targets()
+	arm_group.clear_pose_targets()
+
+	## END_SUB_TUTORIAL
+
+	# For testing:
+	# Note that since this section of code will not be included in the tutorials
+	# we use the class variable rather than the copied state variable
+	current_pose = arm_group.get_current_pose().pose
+	print "EE_POSE", EE_POSE
+	# return all_close(pose_goal, current_pose, 0.01)
+	
+def cartesian_control(arm_group, *argv):
+	waypoints = []
+	scale = 1.0
+	
+	wpose = arm_group.get_current_pose().pose
+	wpose.position.z -= scale * 0.1  # First move up (z)
+	wpose.position.y += scale * 0.2  # and sideways (y)
+	waypoints.append(copy.deepcopy(wpose))
+	
+	wpose.position.x += scale * 0.1  # Second move forward/backwards in (x)
+	waypoints.append(copy.deepcopy(wpose))
+	
+	wpose.position.y -= scale * 0.1  # Third move sideways (y)
+	waypoints.append(copy.deepcopy(wpose))
+	
+	(plan, fraction) = arm_group.compute_cartesian_path(
+                                   waypoints,   # waypoints to follow
+                                   0.01,        # eef_step
+                                   0.0)         # jump_threshold
+
+	## Now, we call the planner to compute the plan and execute it.
+	arm_group.execute(plan, wait=True)
 	arm_group.stop()
 	# It is always good to clear your targets after planning with poses.
 	# Note: there is no equivalent function for clear_joint_value_targets()
@@ -177,9 +218,16 @@ def main():
 			# print "interval:", (now - prev), "calibration_flag:", IMU.calibration_flag
 			# IMU.update()
 			# joint_space_control(arm_group, wrist_1=angle_x, wrist_2=angle_y, wrist_3=angle_z)
-			print "Enter x_val"
-			x_val = float(raw_input())
-			task_space_control(arm_group, x_val)
+			wpose = arm_group.get_current_pose().pose
+			print "wpose:", wpose
+			# print "Enter x_val"
+			# x_val = float(raw_input())
+			# print "Enter y_val"
+			# y_val = float(raw_input())
+			# print "Enter z_val"
+			# z_val = float(raw_input())
+			# task_space_control(arm_group, x_val, y_val, z_val)
+			cartesian_control(arm_group)
 			
 			rospy.sleep(5)
 
