@@ -29,7 +29,8 @@
     <gazebo>
 			<plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
 				<frameName>map</frameName>
-				<bodyName>${prefix}tool0</bodyName>
+				<!--<bodyName>${prefix}tool0</bodyName>-->
+				<bodyName>${prefix}wrist_3_link</bodyName>
 				<topicName>odom_tool0</topicName>
 				<updateRate>30.0</updateRate>
 			</plugin>

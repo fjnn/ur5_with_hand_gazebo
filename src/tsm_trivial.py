@@ -14,15 +14,18 @@ import moveit_commander
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
 
 from Classes.IMU_class_elbow_angle import IMUsubscriber
+import Classes.Kinematics_with_Quaternions as kinematic
 
 
 EE_POSE = Odometry()
 WRIST_POSE = Odometry()
 GOAL_POSE = Pose()
+t = TransformStamped()
 
 IMU = IMUsubscriber()
 #TODO: initiate human model
@@ -81,14 +84,14 @@ def joint_space_control(arm_group, **kwargs):
         arm_group.set_joint_value_target(arm_group_variable_values)
     plan_arm = arm_group.go(wait=False) 
     
-def task_space_control(arm_group, **kwargs):
+def task_space_control(arm_group, x_val, **kwargs):
 	global EE_POSE
 	# rosrun tf tf_echo /world /tool0
 	pose_goal = Pose()
 	pose_goal.orientation.w = 1.0
-	pose_goal.position.x = 0.4
-	pose_goal.position.y = 0.1
-	pose_goal.position.z = 0.4
+	pose_goal.position.x = x_val
+	pose_goal.position.y = 0.15
+	pose_goal.position.z = 0.6
 	arm_group.set_pose_target(pose_goal)
 
 	## Now, we call the planner to compute the plan and execute it.
@@ -109,14 +112,40 @@ def task_space_control(arm_group, **kwargs):
 	# return all_close(pose_goal, current_pose, 0.01)
 
 def odometryCb_tool0(msg):
-	global EE_POSE
+	global EE_POSE, t
+	'''
+	msg: world to wrist_3_link
+	EE_POSE should be calculated here according to: 
+	
+	rosrun tf tf_echo /tool0 /wrist_3_link
+	At time 0.000
+	- Translation: [0.000, -0.000, -0.082]
+	- Rotation: in Quaternion [0.707, -0.000, -0.000, 0.707]
+							in RPY (radian) [1.571, -0.000, -0.000]
+							in RPY (degree) [90.000, -0.000, -0.000]
+	'''
+
 	EE_POSE = msg
 	# print msg.pose.pose
 	    
 
 def main():
+    global t
+    
+    # create /tf wrist_3_link to /tool0
+    t.header.stamp = rospy.Time.now()
+    t.header.frame_id = "wrist_3_link"
+    t.child_frame_id = "tool0"
+    t.transform.translation.x = 0.0
+    t.transform.translation.y = 0.0
+    t.transform.translation.z = -0.082
+    t.transform.rotation.x = 0.707
+    t.transform.rotation.y = -0.000
+    t.transform.rotation.z = -0.000
+    t.transform.rotation.w = 0.707
+    
     try:
-		arm_group = movegroup_init()
+		arm_group = movegroup_init()		
 		rospy.Subscriber('/odom_tool0',Odometry,odometryCb_tool0)
 		# rospy.sleep(5)
 		# joint_space_control(arm_group, wrist_2=0.0, wrist_1=0.0)
@@ -148,9 +177,11 @@ def main():
 			# print "interval:", (now - prev), "calibration_flag:", IMU.calibration_flag
 			# IMU.update()
 			# joint_space_control(arm_group, wrist_1=angle_x, wrist_2=angle_y, wrist_3=angle_z)
-			task_space_control(arm_group)
+			print "Enter x_val"
+			x_val = float(raw_input())
+			task_space_control(arm_group, x_val)
 			
-			rospy.spin()
+			rospy.sleep(5)
 
 
     except KeyboardInterrupt:
