@@ -135,24 +135,7 @@ def cartesian_control_with_IMU(arm_group, robot_init, hand_pose, *argv):
 	arm_group.stop()
 	arm_group.clear_pose_targets()
 
-
-def odometryCb_tool0(msg):
-	global EE_POSE, t
-	'''
-	msg: world to wrist_3_link
-	EE_POSE should be calculated here according to: 
-	
-	rosrun tf tf_echo /tool0 /wrist_3_link
-	At time 0.000
-	- Translation: [0.000, -0.000, -0.082]
-	- Rotation: in Quaternion [0.707, -0.000, -0.000, 0.707]
-							in RPY (radian) [1.571, -0.000, -0.000]
-							in RPY (degree) [90.000, -0.000, -0.000]
-	'''
-
-	EE_POSE = msg
-	# print msg.pose.pose
-	    
+    
 
 def main():
     global t
@@ -171,7 +154,6 @@ def main():
     
     try:
 		arm_group = movegroup_init()		
-		# rospy.Subscriber('/odom_tool0',Odometry,odometryCb_tool0)
 		# rospy.sleep(5)
 
 		IMU.init_subscribers_and_publishers()
