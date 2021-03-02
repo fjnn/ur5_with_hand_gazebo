@@ -117,7 +117,7 @@ def odometryCb_tool0(msg):
 def main():
     try:
 		arm_group = movegroup_init()
-		# rospy.Subscriber('/odom_tool0',Odometry,odometryCb_tool0)
+		rospy.Subscriber('/odom_tool0',Odometry,odometryCb_tool0)
 		# rospy.sleep(5)
 		# joint_space_control(arm_group, wrist_2=0.0, wrist_1=0.0)
 		# rt_joints_mapping(hand_group, arm_group)
