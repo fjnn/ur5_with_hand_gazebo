@@ -27,7 +27,6 @@ import Classes.Kinematics_with_Quaternions as kinematic
 EE_POSE = Odometry()
 WRIST_POSE = Odometry()
 GOAL_POSE = Pose()
-t = TransformStamped()
 
 IMU = IMUsubscriber()
 #TODO: initiate human model
@@ -47,35 +46,35 @@ def movegroup_init():
 	return arm_group
 
     
-def task_space_control(arm_group, *argv):
-	global EE_POSE
-	# rosrun tf tf_echo /world /tool0
-	pose_goal = Pose()
-	pose_goal.orientation.x = 0.707
-	pose_goal.orientation.y = -0.000
-	pose_goal.orientation.z = -0.000
-	pose_goal.orientation.w = 0.707
-	pose_goal.position.x = argv[0]
-	pose_goal.position.y = argv[1]
-	pose_goal.position.z = argv[2]
-	arm_group.set_pose_target(pose_goal)
+# def task_space_control(arm_group, *argv):
+	# global EE_POSE
+	# # rosrun tf tf_echo /world /tool0
+	# pose_goal = Pose()
+	# pose_goal.orientation.x = 0.707
+	# pose_goal.orientation.y = -0.000
+	# pose_goal.orientation.z = -0.000
+	# pose_goal.orientation.w = 0.707
+	# pose_goal.position.x = argv[0]
+	# pose_goal.position.y = argv[1]
+	# pose_goal.position.z = argv[2]
+	# arm_group.set_pose_target(pose_goal)
 
-	## Now, we call the planner to compute the plan and execute it.
-	plan = arm_group.go(wait=True)
-	# Calling `stop()` ensures that there is no residual movement
-	arm_group.stop()
-	# It is always good to clear your targets after planning with poses.
-	# Note: there is no equivalent function for clear_joint_value_targets()
-	arm_group.clear_pose_targets()
+	# ## Now, we call the planner to compute the plan and execute it.
+	# plan = arm_group.go(wait=True)
+	# # Calling `stop()` ensures that there is no residual movement
+	# arm_group.stop()
+	# # It is always good to clear your targets after planning with poses.
+	# # Note: there is no equivalent function for clear_joint_value_targets()
+	# arm_group.clear_pose_targets()
 
-	## END_SUB_TUTORIAL
+	# ## END_SUB_TUTORIAL
 
-	# For testing:
-	# Note that since this section of code will not be included in the tutorials
-	# we use the class variable rather than the copied state variable
-	current_pose = arm_group.get_current_pose().pose
-	print "EE_POSE", EE_POSE
-	# return all_close(pose_goal, current_pose, 0.01)
+	# # For testing:
+	# # Note that since this section of code will not be included in the tutorials
+	# # we use the class variable rather than the copied state variable
+	# current_pose = arm_group.get_current_pose().pose
+	# print "EE_POSE", EE_POSE
+	# # return all_close(pose_goal, current_pose, 0.01)
 	
 def cartesian_control(arm_group, *argv):
 	waypoints = []
@@ -137,21 +136,7 @@ def cartesian_control_with_IMU(arm_group, robot_init, hand_pose, *argv):
 
     
 
-def main():
-    global t
-    
-    # create /tf wrist_3_link to /tool0
-    t.header.stamp = rospy.Time.now()
-    t.header.frame_id = "wrist_3_link"
-    t.child_frame_id = "tool0"
-    t.transform.translation.x = 0.0
-    t.transform.translation.y = 0.0
-    t.transform.translation.z = -0.082
-    t.transform.rotation.x = 0.707
-    t.transform.rotation.y = -0.000
-    t.transform.rotation.z = -0.000
-    t.transform.rotation.w = 0.707
-    
+def main():    
     try:
 		arm_group = movegroup_init()		
 		# rospy.sleep(5)
