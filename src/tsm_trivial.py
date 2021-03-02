@@ -75,8 +75,9 @@ def joint_space_control(arm_group, **kwargs):
         arm_group.set_joint_value_target(arm_group_variable_values)
     plan_arm = arm_group.go(wait=False) 
     
-def joint_space_control(arm_group, **kwargs):
+def task_space_control(arm_group, **kwargs):
 
+		# rosrun tf tf_echo /world /tool0
     pose_goal = geometry_msgs.msg.Pose()
     pose_goal.orientation.w = 1.0
     pose_goal.position.x = 0.4
@@ -87,33 +88,34 @@ def joint_space_control(arm_group, **kwargs):
     ## Now, we call the planner to compute the plan and execute it.
     plan = arm_group.go(wait=True)
     # Calling `stop()` ensures that there is no residual movement
-    group.stop()
+    arm_group.stop()
     # It is always good to clear your targets after planning with poses.
     # Note: there is no equivalent function for clear_joint_value_targets()
-    group.clear_pose_targets()
+    arm_group.clear_pose_targets()
 
     ## END_SUB_TUTORIAL
 
     # For testing:
     # Note that since this section of code will not be included in the tutorials
     # we use the class variable rather than the copied state variable
-    current_pose = self.group.get_current_pose().pose
-    return all_close(pose_goal, current_pose, 0.01)
+    current_pose = arm_group.get_current_pose().pose
+    # return all_close(pose_goal, current_pose, 0.01)
 
            
 
 def main():
     try:
 		arm_group = movegroup_init()
-		# rospy.sleep(5)
-		joint_space_control(arm_group, wrist_2=0.0, wrist_1=0.0)
+		rospy.sleep(5)
+		# joint_space_control(arm_group, wrist_2=0.0, wrist_1=0.0)
 		# rt_joints_mapping(hand_group, arm_group)
 		# IMU.init_subscribers_and_publishers()
 		# rospy.init_node('tsm_trivial',
                     # anonymous=True)
 #        
 #        hand_group.set_named_target("handOpen")
-#        plan_hand = hand_group.go()  
+#        plan_hand = hand_group.go() 
+		print "Going home..."
 		arm_group.set_named_target("home")
 		plan_arm = arm_group.go()  
 #        Leap.init_subscribers_and_publishers()
