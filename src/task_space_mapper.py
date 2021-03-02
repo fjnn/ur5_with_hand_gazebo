@@ -8,181 +8,208 @@ Refer to: http://docs.ros.org/en/indigo/api/pr2_moveit_tutorials/html/planning/s
 
 import sys
 import time
+import copy
+from math import pi
 
 import rospy
 import moveit_commander
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import Quaternion
-from sensor_msgs.msg import JointState
+from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
-import tf
-import math
+from sensor_msgs.msg import JointState
 
 from Classes.IMU_class_elbow_angle import IMUsubscriber
+import Classes.Kinematics_with_Quaternions as kinematic
+
 
 EE_POSE = Odometry()
 WRIST_POSE = Odometry()
 GOAL_POSE = Pose()
-
-s = 1.0 # Scale between robot wrist_1_link to ee_link distance and human wrist origin to hand position
+t = TransformStamped()
 
 IMU = IMUsubscriber()
-#Leap = LeapSubscriber()
 #TODO: initiate human model
 
 
 def movegroup_init():
-    """
-    Initializes the manipulator and end-effector groups
-    @returns Initialized groups
-    """
-    moveit_commander.roscpp_initialize(sys.argv)
-#    rospy.init_node("hand_control_with_leap_node", anonymous=False)
-    robot = moveit_commander.RobotCommander()
-    
-    arm_group = moveit_commander.MoveGroupCommander("manipulator")
-    arm_group.set_named_target("vertical")
-    plan_arm = arm_group.go()  
-    return arm_group
-    
+	"""
+	Initializes the manipulator and end-effector groups
+	@returns Initialized groups
+	"""
+	moveit_commander.roscpp_initialize(sys.argv)
+	robot = moveit_commander.RobotCommander()
 
-def task_space_control(arm_group):
-    """
-    Send goal pose to robot.
-    """
-    global EE_POSE, GOAL_POSE,s
-    robot_init = Pose(Point(-0.175, 0.000, -0.095), Quaternion(0.000, 0.000, -0.707, 0.707))
-    GOAL_POSE = IMU.hand_pos_calculate(robot_init)
-    # GOAL_POSE = IMU.hand_pos_calculate(EE_POSE.pose.pose, robot_init)
+	arm_group = moveit_commander.MoveGroupCommander("manipulator")
+	arm_group.set_named_target("home")
+	plan_arm = arm_group.go()  
+	return arm_group
+
     
-    GOAL_POSE.position.x += EE_POSE.pose.pose.position.x
-    GOAL_POSE.position.y += EE_POSE.pose.pose.position.y
-    GOAL_POSE.position.z += EE_POSE.pose.pose.position.z
-    # GOAL_POSE.position.x = WRIST_POSE.pose.pose.position.x + s*IMU.tf_wrist.position.x
-    # GOAL_POSE.position.y = WRIST_POSE.pose.pose.position.y + s*IMU.tf_wrist.position.y
-    # GOAL_POSE.position.z = WRIST_POSE.pose.pose.position.z + s*IMU.tf_wrist.position.z
-    # GOAL_POSE.orientation = IMU.tf_wrist.orientation
-    
-    # print "EE_POSE:", EE_POSE.pose.pose
-    # print "GOAL_POSE:", GOAL_POSE
-    GOAL_POSE = EE_POSE.pose.pose
-    # arm_group.set_pose_target(GOAL_POSE)
-    # print "here2"
-    # plan_arm = arm_group.go(wait=True) 
-    
-        
-#        hand_group.set_named_target("handOpen")
-#        plan_hand = hand_group.go()  
-#        arm_group.set_named_target("home")
-#        plan_arm = arm_group.go()  
-
-# rostopic echo /odom_ee_link
-# header:
-  # seq: 340
-  # stamp:
-    # secs: 146
-    # nsecs: 762000000
-  # frame_id: "map"
-# child_frame_id: "wrist_3_link"
-# pose:
-  # pose:
-    # position:
-      # x: 0.0646392808237
-      # y: 0.0269655724577
-      # z: 1.09875545008
-    # orientation:
-      # x: 0.0252646798802
-      # y: 0.0253592483528
-      # z: -0.706673992184
-      # w: 0.706633195685
-  # covariance: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-# twist:
-  # twist:
-    # linear:
-      # x: 0.0025460914695
-      # y: 2.04374376156e-05
-      # z: -0.000183389034662
-    # angular:
-      # x: -4.14122316673e-07
-      # y: 0.00297111347754
-      # z: 0.000309351516229
-  # covariance: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-# ---
-
-# rosrun tf tf_echo /ee_link /wrist_1_link
-# - Translation: [-0.175, 0.000, -0.095]
-# - Rotation: in Quaternion [0.000, 0.000, -0.707, 0.707]
-            # in RPY (radian) [0.000, 0.000, -1.571]
-            # in RPY (degree) [0.000, 0.002, -89.999]
-
-
-
-def joint_names_to_numbers(argument): 
-    switcher = { 
-        "shoulder_pan": 0, 
-        "shoulder_lift": 1,
-        "elbow": 2,
-        "wrist_1": 3,
-        "wrist_2": 4,
-        "wrist_3": 5,
-    } 
-  
-    # get() method of dictionary data type returns  
-    # value of passed argument if it is present  
-    # in dictionary otherwise second argument will 
-    # be assigned as default value of passed argument 
-    return switcher.get(argument, "nothing") 
-    
-def odometryCb_ee_link(msg):
+def task_space_control(arm_group, *argv):
 	global EE_POSE
+	# rosrun tf tf_echo /world /tool0
+	pose_goal = Pose()
+	pose_goal.orientation.x = 0.707
+	pose_goal.orientation.y = -0.000
+	pose_goal.orientation.z = -0.000
+	pose_goal.orientation.w = 0.707
+	pose_goal.position.x = argv[0]
+	pose_goal.position.y = argv[1]
+	pose_goal.position.z = argv[2]
+	arm_group.set_pose_target(pose_goal)
+
+	## Now, we call the planner to compute the plan and execute it.
+	plan = arm_group.go(wait=True)
+	# Calling `stop()` ensures that there is no residual movement
+	arm_group.stop()
+	# It is always good to clear your targets after planning with poses.
+	# Note: there is no equivalent function for clear_joint_value_targets()
+	arm_group.clear_pose_targets()
+
+	## END_SUB_TUTORIAL
+
+	# For testing:
+	# Note that since this section of code will not be included in the tutorials
+	# we use the class variable rather than the copied state variable
+	current_pose = arm_group.get_current_pose().pose
+	print "EE_POSE", EE_POSE
+	# return all_close(pose_goal, current_pose, 0.01)
+	
+def cartesian_control(arm_group, *argv):
+	waypoints = []
+	scale = 1.0
+		
+	wpose = arm_group.get_current_pose().pose
+	wpose.position.z -= scale * 0.1  # First move up (z)
+	wpose.position.y += scale * 0.2  # and sideways (y)
+	waypoints.append(copy.deepcopy(wpose))
+	
+	wpose.position.x += scale * 0.1  # Second move forward/backwards in (x)
+	waypoints.append(copy.deepcopy(wpose))
+	
+	wpose.position.y -= scale * 0.1  # Third move sideways (y)
+	waypoints.append(copy.deepcopy(wpose))
+	
+	(plan, fraction) = arm_group.compute_cartesian_path(
+                                   waypoints,   # waypoints to follow
+                                   0.01,        # eef_step
+                                   0.0)         # jump_threshold
+
+	## Now, we call the planner to compute the plan and execute it.
+	arm_group.execute(plan, wait=True)
+	arm_group.stop()
+	# It is always good to clear your targets after planning with poses.
+	# Note: there is no equivalent function for clear_joint_value_targets()
+	arm_group.clear_pose_targets()
+
+	## END_SUB_TUTORIAL
+
+	# For testing:
+	# Note that since this section of code will not be included in the tutorials
+	# we use the class variable rather than the copied state variable
+	current_pose = arm_group.get_current_pose().pose
+	print "EE_POSE", EE_POSE
+	
+
+def cartesian_control_with_IMU(arm_group, robot_init, hand_pose, *argv):
+	waypoints = []
+	scale = 1.0
+	
+	wpose = Pose()
+	wpose.position.x = robot_init.position.x + scale * hand_pose.position.y
+	wpose.position.y = robot_init.position.y + scale * hand_pose.position.z
+	wpose.position.z = robot_init.position.z + scale * hand_pose.position.x
+	wpose.orientation = robot_init.orientation
+	# wpose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose.orientation)
+	
+	waypoints.append(copy.deepcopy(wpose))
+	
+	(plan, fraction) = arm_group.compute_cartesian_path(
+                                   waypoints,   # waypoints to follow
+                                   0.01,        # eef_step
+                                   0.0)         # jump_threshold
+
+	arm_group.execute(plan, wait=True)
+	arm_group.stop()
+	arm_group.clear_pose_targets()
+
+
+def odometryCb_tool0(msg):
+	global EE_POSE, t
+	'''
+	msg: world to wrist_3_link
+	EE_POSE should be calculated here according to: 
+	
+	rosrun tf tf_echo /tool0 /wrist_3_link
+	At time 0.000
+	- Translation: [0.000, -0.000, -0.082]
+	- Rotation: in Quaternion [0.707, -0.000, -0.000, 0.707]
+							in RPY (radian) [1.571, -0.000, -0.000]
+							in RPY (degree) [90.000, -0.000, -0.000]
+	'''
+
 	EE_POSE = msg
 	# print msg.pose.pose
-
-def odometryCb_wrist_1_link(msg):
-	global WRIST_POSE
-	WRIST_POSE = msg
-    # print msg.pose.pose
-
-        
+	    
 
 def main():
-		try:
-			# rospy.init_node('oodometry', anonymous=True) #make node 
-			#        rospy.sleep(5)
-			# joint_space_control(hand_group, arm_group, wrist_2=1.0, wrist_1=1.0)
-			#        rt_joints_mapping(hand_group, arm_group)
-			# sys.exit("done")
-			IMU.init_subscribers_and_publishers()
-			rospy.Subscriber('/odom_ee_link',Odometry,odometryCb_ee_link)
-			rospy.Subscriber('/odom_wrist_1_link',Odometry,odometryCb_wrist_1_link)
+    global t
+    
+    # create /tf wrist_3_link to /tool0
+    t.header.stamp = rospy.Time.now()
+    t.header.frame_id = "wrist_3_link"
+    t.child_frame_id = "tool0"
+    t.transform.translation.x = 0.0
+    t.transform.translation.y = 0.0
+    t.transform.translation.z = -0.082
+    t.transform.rotation.x = 0.707
+    t.transform.rotation.y = -0.000
+    t.transform.rotation.z = -0.000
+    t.transform.rotation.w = 0.707
+    
+    try:
+		arm_group = movegroup_init()		
+		# rospy.Subscriber('/odom_tool0',Odometry,odometryCb_tool0)
+		# rospy.sleep(5)
 
-			# listener = tf.TransformListener()
-			arm_group = movegroup_init()
-			#        
+		IMU.init_subscribers_and_publishers()
+
+		robot_init = arm_group.get_current_pose().pose
+		print "============ Arm current pose: ", robot_init
+		print "click Enter to continue"
+		dummy_input = raw_input()
+		prev = time.time()
+		while not rospy.is_shutdown():
+			if IMU.calibration_flag < 21:
+				print "calibration:", IMU.calibration_flag
+			else:
+				# robot_init = Pose(Point(-0.175, 0.000, -0.095), Quaternion(0.000, 0.000, -0.707, 0.707))				print "robot_init:", robot_init
+				IMU.hand_pos_calculate()
+				GOAL_POSE = IMU.tf_wrist
+				print "GOAL_POSE", GOAL_POSE
+				cartesian_control_with_IMU(arm_group, robot_init, GOAL_POSE)
+				# wpose = arm_group.get_current_pose().pose
+				# print "wpose:", wpose
+				# print "Enter x_val"
+				# x_val = float(raw_input())
+				# print "Enter y_val"
+				# y_val = float(raw_input())
+				# print "Enter z_val"
+				# z_val = float(raw_input())
+				# cartesian_control_with_IMU(arm_group, robot_init, GOAL_POSE, x_val, y_val, z_val)
+				# task_space_control(arm_group, x_val, y_val, z_val)
+			IMU.update()
+			IMU.r.sleep()
 			
-			while not rospy.is_shutdown():
-				# (trans,rot) = listener.lookupTransform('/odom_ee_link/pose/pose', '/odom_wrist_1_link/pose/pose', rospy.Time(0))
-				if IMU.calibration_flag < 21:
-					print "calibration:", IMU.calibration_flag
-				else:
-					task_space_control(arm_group)
-				#            now = time.time()
-				#            prev = 0
-				#            # print "++++", index
-				#    #        index += 1  This index is to get 5 sensor readings and compute 1 KF estimation. Check pose_node.py in my_human_pkg for more
-				#            # print "total: ", (now - start)
-				#            # print "interval:", (now - prev), "calibration_flag:", IMU.calibration_flag
-				IMU.update()
-				IMU.r.sleep()
-				#            prev = now
-				#            Leap.update()
-				#            Leap.r.sleep()
+			
 
-		except KeyboardInterrupt:
-			moveit_commander.roscpp_shutdown()
-			rospy.signal_shutdown("KeyboardInterrupt")
-			raise
+
+    except KeyboardInterrupt:
+        moveit_commander.roscpp_shutdown()
+        rospy.signal_shutdown("KeyboardInterrupt")
+        raise
 
 
 if __name__ == '__main__': main()
