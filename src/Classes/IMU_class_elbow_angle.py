@@ -145,7 +145,7 @@ class IMUsubscriber:
 					self.tf_wrist.position.x = v_rotated[0]-v_rotated_init[0]
 					self.tf_wrist.position.y = v_rotated[1]-v_rotated_init[1]
 					self.tf_wrist.position.z = v_rotated[2]-v_rotated_init[2]
-					self.tf_wrist.orientation = self.q_wrist_tsm
+					# self.tf_wrist.orientation = self.q_wrist_tsm
 					# print "human wrist TF:", self.tf_wrist
 					
 					# Send as goal pose
@@ -153,8 +153,8 @@ class IMUsubscriber:
 					# robot_ee_pose.position.x += self.tf_wrist.position.x
 					# robot_ee_pose.position.y += self.tf_wrist.position.y
 					# robot_ee_pose.position.z += self.tf_wrist.position.z
-					
-					self.tf_wrist.orientation = kinematic.q_multiply(robot_init.orientation, self.q_wrist_tsm)
+					self.tf_wrist.orientation = self.q_wrist_tsm
+					# self.tf_wrist.orientation = kinematic.q_multiply(robot_init.orientation, self.q_wrist_tsm)
 	    
     # def hand_pos_calculate_bk(self, robot_ee_pose, v=hand_link):
 	# """
