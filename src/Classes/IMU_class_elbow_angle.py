@@ -148,21 +148,4 @@ class IMUsubscriber:
 					self.tf_wrist.orientation = self.q_wrist_tsm
 					# self.tf_wrist.orientation = kinematic.q_multiply(robot_init.orientation, self.q_wrist_tsm)
 	    
-				
-    def hand_pos_init(self, robot_ee_pose, v=hand_link):
-	"""
-	One time map robot and human hand.
-	@param robot_ee_pose: type Pose(), robot ee_link position&orientation
-	@param v=hand_link default
-	"""
-	# hand initial pose : bend 90 degrees
-	# robot initial pose should be in this regard
-	print "q_before:", self.q_wrist_sensorframe
-	print "Move the hand to the BENT pose. Press Enter..."
-	dummy_input = raw_input()
-	# print "robot pose:", robot_ee_pose
-	print "q_after:", self.q_wrist_sensorframe
-	v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
-	# print "human hand pose:", v_rotated
-        
 
