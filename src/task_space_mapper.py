@@ -53,7 +53,8 @@ def task_space_control(arm_group):
     """
     global EE_POSE, GOAL_POSE,s
     robot_init = Pose(Point(-0.175, 0.000, -0.095), Quaternion(0.000, 0.000, -0.707, 0.707))
-    GOAL_POSE = IMU.hand_pos_calculate(EE_POSE.pose.pose, robot_init)
+    GOAL_POSE = IMU.hand_pos_calculate(robot_init)
+    # GOAL_POSE = IMU.hand_pos_calculate(EE_POSE.pose.pose, robot_init)
     
     GOAL_POSE.position.x += EE_POSE.pose.pose.position.x
     GOAL_POSE.position.y += EE_POSE.pose.pose.position.y
