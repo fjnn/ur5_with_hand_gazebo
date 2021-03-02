@@ -74,6 +74,9 @@ def joint_space_control(arm_group, **kwargs):
         arm_group_variable_values[joint_int] = joint_val
         arm_group.set_joint_value_target(arm_group_variable_values)
     plan_arm = arm_group.go(wait=False) 
+    
+    # Note: there is no equivalent function for clear_joint_value_targets()
+	# arm_group.clear_pose_targets() -- Maybe this way can solve lagging problem
            
 
 def main():

@@ -24,12 +24,13 @@
     <gazebo reference="${prefix}ee_link">
       <selfCollide>true</selfCollide>
     </gazebo>
+
     
     <gazebo>
 			<plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
 				<frameName>map</frameName>
-				<bodyName>${prefix}ee_link</bodyName>
-				<topicName>odom_ee_link</topicName>
+				<bodyName>${prefix}tool0</bodyName>
+				<topicName>odom_tool0</topicName>
 				<updateRate>30.0</updateRate>
 			</plugin>
 		</gazebo>
