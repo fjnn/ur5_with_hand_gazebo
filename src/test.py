@@ -31,26 +31,44 @@ import Classes.Kinematics_with_Quaternions as kinematic
 #
 # test = IMUsubscriber()
 
-
-s = np.array([0, -6, 0])
-sq = np.array([0, -6, 0, 0])
-
-
-qz = pq.Quaternion(angle = np.pi/6, axis=[0, 0, 1])
-qy = pq.Quaternion(angle = np.pi/6, axis=[0, 1, 0])
-
-Rz = np.array([ [0.8660254, -0.5000000,  0.0000000],[ 0.5000000,  0.8660254,  0.0000000],[ 0.0000000,  0.0000000,  1.0000000 ]])
-Ry = np.array([ [0.8660254,  0.0000000,  0.5000000],[ 0.0000000,  1.0000000,  0.0000000],[ -0.5000000,  0.0000000,  0.8660254 ]])
-
-Rz_new = rotation_matrix(pi/6, (0, 0, 1))
-Ry_new = rotation_matrix(pi/6, (0, 1, 0))
-Rz_90 = rotation_matrix(pi/2, (0, 0, 1))
-qRz = m2q(Rz_new)
-qRy = m2q(Ry_new)
-qRz_90 = m2q(Rz_90)
-print qRz_90
-print type(qRz_90)
+rotm = np.array([[ 0.99500417, -0.09983342,  0.        ],
+ [ 0.09983342,  0.99500417, -0.        ],
+ [ 0.,          0.,          1.        ]])
+ 
+link_vec = np.array([[0.    ],
+ [0.    ],
+ [0.0921]])
+ 
+null_mat = np.concatenate((rotm, link_vec), axis=1)
+print "null_mat_size:", null_mat.shape
+null_vec = np.zeros((1,4), dtype = float)
+# null_vec = np.zeros((1,4), dtype = float)
+print "null_vec_size:", null_vec.shape
+null_vec[0][3] = 1.0
+htm = np.zeros((4, 4), dtype = float)
+htm = np.concatenate((null_mat, null_vec))
+print "htm:", htm
 sys.exit()
+
+
+# s = np.array([0, -6, 0])
+# sq = np.array([0, -6, 0, 0])
+
+
+# qz = pq.Quaternion(angle = np.pi/6, axis=[0, 0, 1])
+# qy = pq.Quaternion(angle = np.pi/6, axis=[0, 1, 0])
+
+# Rz = np.array([ [0.8660254, -0.5000000,  0.0000000],[ 0.5000000,  0.8660254,  0.0000000],[ 0.0000000,  0.0000000,  1.0000000 ]])
+# Ry = np.array([ [0.8660254,  0.0000000,  0.5000000],[ 0.0000000,  1.0000000,  0.0000000],[ -0.5000000,  0.0000000,  0.8660254 ]])
+
+# Rz_new = rotation_matrix(pi/6, (0, 0, 1))
+# Ry_new = rotation_matrix(pi/6, (0, 1, 0))
+# Rz_90 = rotation_matrix(pi/2, (0, 0, 1))
+# qRz = m2q(Rz_new)
+# qRy = m2q(Ry_new)
+# qRz_90 = m2q(Rz_90)
+# print qRz_90
+# print type(qRz_90)
 # qRzy = quaternion_multiply(qRy, qRz)
 
 

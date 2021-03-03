@@ -1,3 +1,5 @@
+import sys
+
 from math import pi
 from math import cos
 from math import sin
@@ -23,7 +25,7 @@ class DHmatrices:
 
 
 		self.rotm = np.zeros((3, 3), dtype = float)
-		link_vec = np.zeros(3, dtype = float)
+		self.link_vec = np.zeros((3, 1), dtype = float)
 		self.htm = np.zeros((4, 4), dtype = float)
 
 
@@ -42,6 +44,7 @@ class DHmatrices:
 		self.rotm[1][2] = -cos(theta) * sin(alpha)
 		self.rotm[2][1] = sin(alpha)
 		self.rotm[2][2] = cos(alpha)
+		return self.rotm
 	
 	
 	def link_calculate(self, theta, a, d):
@@ -51,12 +54,21 @@ class DHmatrices:
 		self.link_vec[0] = a * cos(theta)
 		self.link_vec[1] = a * sin(theta)
 		self.link_vec[2] = d
+		return self.link_vec
 	
 		
 	def rotm_to_htm(self, rotm, link_vec):
 		null_mat = np.concatenate((rotm, link_vec), axis=1)
-		null_vec = np.array([0.0, 0.0, 0.0, 1.0], dtype = float)
-		self.htm = np.concatenate(null_mat, null_vec)
+		print "null_mat_size:", null_mat.shape
+		null_vec = np.zeros((1,4), dtype = float)
+		print "null_vec_size:", null_vec.shape
+		null_vec[0][3] = 1.0
+		self.htm = np.concatenate((null_mat, null_vec))
+		print "htm:", self.htm
+		sys.exit()
+		return self.htm
+		
+		
 		
 	@staticmethod	
 	def matmul(mat1, mat2, mat3):

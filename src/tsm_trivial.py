@@ -88,21 +88,25 @@ def plan_joint_space_control(arm_group, **kwargs):
 	arm_group_variable_values = arm_group.get_current_joint_values()
 	
 	for joint,theta in kwargs.items():
-			joint_int = joint_names_to_numbers(joint)
-			if joint_int == 3:
-				rotm3 = DHmatrices.angle_to_rotm(theta, pi/2)
-				link_vec3 = DHmatrices.link_calculate(theta, 0.0, 0.13105)
-				htm3 = DHmatrices.rotm_to_htm(rotm3, link_vec3)
-			elif joint_int == 4:
-				rotm4 = DHmatrices.angle_to_rotm(theta, -pi/2)
-				link_vec4 = DHmatrices.link_calculate(theta, 0.0, 0.08535)
-				htm4 = DHmatrices.rotm_to_htm(rotm4, link_vec4)
-			elif joint_int == 5:
-				rotm5 = DHmatrices.angle_to_rotm(theta, 0.0)
-				link_vec5 = DHmatrices.link_calculate(theta, 0.0, 0.0921)
-				htm5 = DHmatrices.rotm_to_htm(rotm5, link_vec5)
-			else:
-				print "Unknown amount of rotm"
+		print "----------------"
+		joint_int = joint_names_to_numbers(joint)
+		print "joint:", joint_int
+		if joint_int == 3:
+			rotm3 = DHmatrices.angle_to_rotm(theta, pi/2)
+			link_vec3 = DHmatrices.link_calculate(theta, 0.0, 0.13105)
+			htm3 = DHmatrices.rotm_to_htm(rotm3, link_vec3)
+		elif joint_int == 4:
+			rotm4 = DHmatrices.angle_to_rotm(theta, -pi/2)
+			link_vec4 = DHmatrices.link_calculate(theta, 0.0, 0.08535)
+			htm4 = DHmatrices.rotm_to_htm(rotm4, link_vec4)
+		elif joint_int == 5:
+			rotm5 = DHmatrices.angle_to_rotm(theta, 0.0)
+			print "rotm5", rotm5
+			link_vec5 = DHmatrices.link_calculate(theta, 0.0, 0.0921)
+			print "link_vec5", link_vec5
+			htm5 = DHmatrices.rotm_to_htm(rotm5, link_vec5)
+		else:
+			print "Unknown amount of rotm"
 	
 	htm_final = DHmatrices.matmul(rotm3, rotm4, rotm5)
 	# rotm_final = DHmatrices.htm_to_rotm(htm_final)
@@ -117,7 +121,7 @@ def plan_joint_space_control(arm_group, **kwargs):
 	return jpose
 	
 
-def plan_task_space_control(arm_group, robot_init, hand_pose, *argv):
+def plan_task_space_control(arm_group, robot_init, hand_pose):
 	waypoints = []
 	scale = 1.0
 	
@@ -198,35 +202,49 @@ def main():
 
 		IMU.init_subscribers_and_publishers()
 
-		# robot_init = arm_group.get_current_pose().pose
+		# robot_init = Pose(Point(0.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
+		robot_init = arm_group.get_current_pose().pose
 		# print "============ Arm current pose: ", robot_init
 		# print "click Enter to continue"
 		# dummy_input = raw_input()
 		# prev = time.time()
 		while not rospy.is_shutdown():
-			# if IMU.calibration_flag < 21:
-				# print "calibration:", IMU.calibration_flag
-			# else:
-			robot_init = Pose(Point(0.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
-			jsm_goal_pose = Pose(Point(0.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
-			tsm_goal_pose = Pose(Point(1.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
-			# IMU.hand_pos_calculate()
-			# GOAL_POSE = IMU.tf_wrist
-			# print "GOAL_POSE", GOAL_POSE
-			adaptive_control(robot_init, jsm_goal_pose, tsm_goal_pose, gyro)
-			# wpose = arm_group.get_current_pose().pose
-			# print "wpose:", wpose
-			# print "Enter x_val"
-			# x_val = float(raw_input())
-			# print "Enter y_val"
-			# y_val = float(raw_input())
-			# print "Enter z_val"
-			# z_val = float(raw_input())
-			# cartesian_control_with_IMU(arm_group, robot_init, GOAL_POSE, x_val, y_val, z_val)
-			# task_space_control(arm_group, x_val, y_val, z_val)
-		# IMU.update()
-		# IMU.r.sleep()
-			rospy.sleep(5)
+			IMU.update()
+			if IMU.calibration_flag < 21:
+				print "calibration:", IMU.calibration_flag
+			else:
+			
+				# jsm_goal_pose = Pose(Point(0.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
+				# tsm_goal_pose = Pose(Point(1.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
+				print "Press Enter for jsm"
+				dummy_input = raw_input()
+				angle_x = float("{:.2f}".format(IMU.human_joint_imu.position[0]))
+				angle_y = float("{:.2f}".format(IMU.human_joint_imu.position[1]))
+				angle_z = float("{:.2f}".format(IMU.human_joint_imu.position[2]))
+				jsm_goal_pose = plan_joint_space_control(arm_group, wrist_1=angle_x, wrist_2=angle_y, wrist_3=angle_z)
+				print "jsm_goal:", jsm_goal_pose
+				print "Press Enter for tsm"
+				dummy_input = raw_input()
+				hand_pose = IMU.tf_wrist
+				tsm_goal_pose = plan_task_space_control(arm_group, robot_init, hand_pose)
+				print "tsm_goal:", tsm_goal_pose
+				# IMU.hand_pos_calculate()
+				# GOAL_POSE = IMU.tf_wrist
+				# print "GOAL_POSE", GOAL_POSE
+				print "Press Enter for adaptive tsm"
+				dummy_input = raw_input()
+				adaptive_control(robot_init, jsm_goal_pose, tsm_goal_pose, gyro)
+				# wpose = arm_group.get_current_pose().pose
+				# print "wpose:", wpose
+				# print "Enter x_val"
+				# x_val = float(raw_input())
+				# print "Enter y_val"
+				# y_val = float(raw_input())
+				# print "Enter z_val"
+				# z_val = float(raw_input())
+				# cartesian_control_with_IMU(arm_group, robot_init, GOAL_POSE, x_val, y_val, z_val)
+				# task_space_control(arm_group, x_val, y_val, z_val)
+			# IMU.r.sleep()
 			
 			
 

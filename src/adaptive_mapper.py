@@ -87,7 +87,10 @@ def plan_joint_space_control(arm_group, **kwargs):
 	arm_group_variable_values = arm_group.get_current_joint_values()
 	
 	for joint,theta in kwargs.items():
+		
+			print "----------------"
 			joint_int = joint_names_to_numbers(joint)
+			print "joint:", joint_int
 			if joint_int == 3:
 				rotm3 = DHmatrices.angle_to_rotm(theta, pi/2)
 				link_vec3 = DHmatrices.link_calculate(theta, 0.0, 0.13105)
@@ -98,7 +101,9 @@ def plan_joint_space_control(arm_group, **kwargs):
 				htm4 = DHmatrices.rotm_to_htm(rotm4, link_vec4)
 			elif joint_int == 5:
 				rotm5 = DHmatrices.angle_to_rotm(theta, 0.0)
+				print "rotm5", rotm5
 				link_vec5 = DHmatrices.link_calculate(theta, 0.0, 0.0921)
+				print "link_vec5", link_vec5
 				htm5 = DHmatrices.rotm_to_htm(rotm5, link_vec5)
 			else:
 				print "Unknown amount of rotm"
