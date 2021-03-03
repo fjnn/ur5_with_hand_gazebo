@@ -88,9 +88,7 @@ def plan_joint_space_control(arm_group, **kwargs):
 	arm_group_variable_values = arm_group.get_current_joint_values()
 	
 	for joint,theta in kwargs.items():
-		print "----------------"
 		joint_int = joint_names_to_numbers(joint)
-		print "joint:", joint_int
 		if joint_int == 3:
 			rotm3 = DHmatrices.angle_to_rotm(theta, pi/2)
 			link_vec3 = DHmatrices.link_calculate(theta, 0.0, 0.13105)
@@ -105,15 +103,14 @@ def plan_joint_space_control(arm_group, **kwargs):
 			htm5 = DHmatrices.rotm_to_htm(rotm5, link_vec5)
 		else:
 			print "Unknown amount of rotm"
+			sys.exit("Returned - plan_joint_space_control")
 	
 	htm_final = DHmatrices.matmul(htm3, htm4, htm5)
 	print "htm_final:", htm_final
 	
-	# rotm_final = DHmatrices.htm_to_rotm(htm_final)
 	quat_final = DHmatrices.htm_to_quat(htm_final)
 	vec_final = DHmatrices.htm_to_vec(htm_final)
-	print "quat_final:", quat_final
-	sys.exit("Done")
+	
 	jpose.position.x = htm_final[0][3]
 	jpose.position.y = htm_final[1][3]
 	jpose.position.z = htm_final[2][3]
@@ -197,7 +194,6 @@ def odometryCb_tool0(msg):
 	    
 
 def main():
-    gyro = Vector3(500.0, 1000.0, 1000.0)
     try:
 		arm_group = movegroup_init()		
 		# rospy.Subscriber('/odom_tool0',Odometry,odometryCb_tool0)
@@ -226,27 +222,18 @@ def main():
 				angle_z = float("{:.2f}".format(IMU.human_joint_imu.position[2]))
 				jsm_goal_pose = plan_joint_space_control(arm_group, wrist_1=angle_x, wrist_2=angle_y, wrist_3=angle_z)
 				print "jsm_goal:", jsm_goal_pose
+				
 				print "Press Enter for tsm"
 				dummy_input = raw_input()
+				IMU.hand_pos_calculate()
 				hand_pose = IMU.tf_wrist
 				tsm_goal_pose = plan_task_space_control(arm_group, robot_init, hand_pose)
 				print "tsm_goal:", tsm_goal_pose
-				# IMU.hand_pos_calculate()
-				# GOAL_POSE = IMU.tf_wrist
-				# print "GOAL_POSE", GOAL_POSE
+
 				print "Press Enter for adaptive tsm"
 				dummy_input = raw_input()
+				gyro = IMU.gyro_wrist
 				adaptive_control(robot_init, jsm_goal_pose, tsm_goal_pose, gyro)
-				# wpose = arm_group.get_current_pose().pose
-				# print "wpose:", wpose
-				# print "Enter x_val"
-				# x_val = float(raw_input())
-				# print "Enter y_val"
-				# y_val = float(raw_input())
-				# print "Enter z_val"
-				# z_val = float(raw_input())
-				# cartesian_control_with_IMU(arm_group, robot_init, GOAL_POSE, x_val, y_val, z_val)
-				# task_space_control(arm_group, x_val, y_val, z_val)
 			# IMU.r.sleep()
 			
 			
