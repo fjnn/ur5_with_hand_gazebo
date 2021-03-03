@@ -11,7 +11,6 @@ import time
 import copy
 from math import pi
 import numpy as np
-from tf.transformations import euler_from_matrix as m2e
 
 
 import rospy
@@ -22,6 +21,7 @@ from geometry_msgs.msg import Quaternion
 from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
+
 
 from Classes.IMU_class_elbow_angle import IMUsubscriber
 import Classes.Kinematics_with_Quaternions as kinematic
@@ -71,73 +71,70 @@ def joint_names_to_numbers(argument):
     return switcher.get(argument, "nothing") 
 
 
-def joint_space_control(arm_group, **kwargs):
-    """
-    IMU readings will be mapped real time.
-    @param arm_group: manipulator group name
-    @param **kwargs: [joint_x, value] list
-    UR DH: https://www.universal-robots.com/articles/ur/application-installation/dh-parameters-for-calculations-of-kinematics-and-dynamics/
-    TODO: double quaternions later. HTM now
-    """
-    global DHmatrices
-    arm_group.clear_pose_targets()
-    
-    arm_group_variable_values = arm_group.get_current_joint_values()
-    # print "============ Arm joint values: ", arm_group_variable_values
-    # print "click Enter to continue"
-    # dummy_input = raw_input()
-#    arm_group_variable_values[4] = 1.0
-    # arm_group.set_joint_value_target(arm_group_variable_values)
-    gpose = Pose()
-    
-    for joint,theta in kwargs.items():
-        joint_int = joint_names_to_numbers(joint)
-        if joint_int == 3:
-					rotm3 = DHmatrices.angle_to_rotm(theta, pi/2):
-					link_vec3 = DHmatrices.link_calculate(theta, 0.0, 0.13105)
-					htm3 = DHmatrices.rotm_to_htm(rotm3, link_vec3)
-				elif joint_int == 4:
-					rotm4 = DHmatrices.angle_to_rotm(theta, -pi/2):
-					link_vec4 = DHmatrices.link_calculate(theta, 0.0, 0.08535)
-					htm4 = DHmatrices.rotm_to_htm(rotm4, link_vec4)
-				elif joint_int == 5:
-					rotm5 = DHmatrices.angle_to_rotm(theta, 0.0)
-					link_vec5 = DHmatrices.link_calculate(theta, 0.0, 0.0921)
-					htm5 = DHmatrices.rotm_to_htm(rotm5, link_vec5)
-				else:
-					print "Unknown amount of rotm"
-    
-    htm_final = DHmatrices(rotm3, rotm4, rotm5)
-		rotm_final = DHmatrices(htm_final)
-    gpose.position.x = htm_final[0][3]
-    gpose.position.y = htm_final[1][3]
-    gpose.position.z = htm_final[2][3]
-    gpose.orientation = # I need quaternion here.
-    return gpose
+def plan_joint_space_control(arm_group, **kwargs):
+	"""
+	IMU readings will be mapped real time.
+	@param arm_group: manipulator group name
+	@param **kwargs: [joint_x, value] list
+	UR DH: https://www.universal-robots.com/articles/ur/application-installation/dh-parameters-for-calculations-of-kinematics-and-dynamics/
+	TODO: double quaternions later. HTM now
+	"""
+	global DHmatrices
+	jpose = Pose()
+	
+	arm_group.clear_pose_targets()
+	
+	arm_group_variable_values = arm_group.get_current_joint_values()
+	
+	for joint,theta in kwargs.items():
+			joint_int = joint_names_to_numbers(joint)
+			if joint_int == 3:
+				rotm3 = DHmatrices.angle_to_rotm(theta, pi/2)
+				link_vec3 = DHmatrices.link_calculate(theta, 0.0, 0.13105)
+				htm3 = DHmatrices.rotm_to_htm(rotm3, link_vec3)
+			elif joint_int == 4:
+				rotm4 = DHmatrices.angle_to_rotm(theta, -pi/2)
+				link_vec4 = DHmatrices.link_calculate(theta, 0.0, 0.08535)
+				htm4 = DHmatrices.rotm_to_htm(rotm4, link_vec4)
+			elif joint_int == 5:
+				rotm5 = DHmatrices.angle_to_rotm(theta, 0.0)
+				link_vec5 = DHmatrices.link_calculate(theta, 0.0, 0.0921)
+				htm5 = DHmatrices.rotm_to_htm(rotm5, link_vec5)
+			else:
+				print "Unknown amount of rotm"
+	
+	htm_final = DHmatrices.matmul(rotm3, rotm4, rotm5)
+	# rotm_final = DHmatrices.htm_to_rotm(htm_final)
+	quat_final = DHmatrices.htm_to_quat(htm_final)
+	jpose.position.x = htm_final[0][3]
+	jpose.position.y = htm_final[1][3]
+	jpose.position.z = htm_final[2][3]
+	jpose.orientation.x = quat_final[0]
+	jpose.orientation.y = quat_final[1]
+	jpose.orientation.z = quat_final[2]
+	jpose.orientation.w = quat_final[3]
+	return jpose
 	
 
-def cartesian_control_with_IMU(arm_group, robot_init, hand_pose, *argv):
+def plan_task_space_control(arm_group, robot_init, hand_pose, *argv):
 	waypoints = []
 	scale = 1.0
 	
-	wpose = Pose()
-	wpose.position.x = robot_init.position.x + scale * hand_pose.position.y
-	wpose.position.y = robot_init.position.y + scale * hand_pose.position.z
-	wpose.position.z = robot_init.position.z + scale * hand_pose.position.x
-	wpose.orientation = robot_init.orientation
-	# wpose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose.orientation)
+	tpose = Pose()
+	tpose.position.x = robot_init.position.x + scale * hand_pose.position.y
+	tpose.position.y = robot_init.position.y + scale * hand_pose.position.z
+	tpose.position.z = robot_init.position.z + scale * hand_pose.position.x
+	tpose.orientation = robot_init.orientation
 	
-	waypoints.append(copy.deepcopy(wpose))
+	waypoints.append(copy.deepcopy(tpose))
 	
 	(plan, fraction) = arm_group.compute_cartesian_path(
                                    waypoints,   # waypoints to follow
                                    0.01,        # eef_step
                                    0.0)         # jump_threshold
 
-	return wpose
-	# arm_group.execute(plan, wait=True)
-	# arm_group.stop()
-	# arm_group.clear_pose_targets()
+	return tpose
+
 	
 def adaptive_control(robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
 	global _GYRO_SCALE

@@ -3,6 +3,8 @@ from math import cos
 from math import sin
 import numpy as np
 
+from tf.transformations import quaternion_from_matrix as m2q
+
 
 class DHmatrices:
 	def __init__(self):
@@ -18,17 +20,17 @@ class DHmatrices:
 		# self.htm1 = np.zeros((4, 4), dtype = float)
 		# self.htm2 = np.zeros((4, 4), dtype = float)
 		# self.htm3 = np.zeros((4, 4), dtype = float)
-		
+
 
 		self.rotm = np.zeros((3, 3), dtype = float)
 		link_vec = np.zeros(3, dtype = float)
 		self.htm = np.zeros((4, 4), dtype = float)
-		
-		
+
+
 		print "Matrices created"
 
 
-  def angle_to_rotm(self, theta, alpha):
+	def angle_to_rotm(self, theta, alpha):
 		'''
 		https://blog.robotiq.com/how-to-calculate-a-robots-forward-kinematics-in-5-easy-steps
 		'''
@@ -51,7 +53,7 @@ class DHmatrices:
 		self.link_vec[2] = d
 	
 		
-	def rotm_to_htm(self, rotm, link_vec)
+	def rotm_to_htm(self, rotm, link_vec):
 		null_mat = np.concatenate((rotm, link_vec), axis=1)
 		null_vec = np.array([0.0, 0.0, 0.0, 1.0], dtype = float)
 		self.htm = np.concatenate(null_mat, null_vec)
@@ -61,7 +63,13 @@ class DHmatrices:
 		return np.matmul(mat1, np.matmul(mat2, mat3))
 
 	@staticmethod
-	def htm_to_rotm(htm)
+	def htm_to_rotm(htm):
 		return htm[np.ix_([0,3],[0,3])]
+		
+	@staticmethod
+	def htm_to_quat(htm):
+		rotm = htm[np.ix_([0,3],[0,3])]
+		quat = m2q(rotm) # np.array([x, y, z, w])
+		return quat
 		
 

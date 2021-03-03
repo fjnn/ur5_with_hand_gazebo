@@ -5,6 +5,7 @@
 Calibration procedure in Xsens.
 
 """
+import sys
 import numpy as np
 import pyquaternion as pq
 from math import pi as pi
@@ -43,8 +44,13 @@ Ry = np.array([ [0.8660254,  0.0000000,  0.5000000],[ 0.0000000,  1.0000000,  0.
 
 Rz_new = rotation_matrix(pi/6, (0, 0, 1))
 Ry_new = rotation_matrix(pi/6, (0, 1, 0))
+Rz_90 = rotation_matrix(pi/2, (0, 0, 1))
 qRz = m2q(Rz_new)
 qRy = m2q(Ry_new)
+qRz_90 = m2q(Rz_90)
+print qRz_90
+print type(qRz_90)
+sys.exit()
 # qRzy = quaternion_multiply(qRy, qRz)
 
 

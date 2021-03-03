@@ -52,8 +52,8 @@ class IMUsubscriber:
         self.gyro_elbow = Vector3()
         self.gyro_wrist = Vector3()
 	
-	self.q_wrist_tsm_init = Quaternion(1.0, 1.0, 1.0, 1.0)
-	self.q_wrist_tsm = Quaternion(0, 0, 0, 1.0)
+        self.q_wrist_tsm_init = Quaternion(1.0, 1.0, 1.0, 1.0)
+        self.q_wrist_tsm = Quaternion(0, 0, 0, 1.0)
 
         self.p_hand = Vector3()
         self.wrist_angles = np.array([0.0, 0.0, 0.0])
