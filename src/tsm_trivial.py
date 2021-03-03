@@ -101,16 +101,19 @@ def plan_joint_space_control(arm_group, **kwargs):
 			htm4 = DHmatrices.rotm_to_htm(rotm4, link_vec4)
 		elif joint_int == 5:
 			rotm5 = DHmatrices.angle_to_rotm(theta, 0.0)
-			print "rotm5", rotm5
 			link_vec5 = DHmatrices.link_calculate(theta, 0.0, 0.0921)
-			print "link_vec5", link_vec5
 			htm5 = DHmatrices.rotm_to_htm(rotm5, link_vec5)
 		else:
 			print "Unknown amount of rotm"
 	
-	htm_final = DHmatrices.matmul(rotm3, rotm4, rotm5)
+	htm_final = DHmatrices.matmul(htm3, htm4, htm5)
+	print "htm_final:", htm_final
+	
 	# rotm_final = DHmatrices.htm_to_rotm(htm_final)
 	quat_final = DHmatrices.htm_to_quat(htm_final)
+	vec_final = DHmatrices.htm_to_vec(htm_final)
+	print "quat_final:", quat_final
+	sys.exit("Done")
 	jpose.position.x = htm_final[0][3]
 	jpose.position.y = htm_final[1][3]
 	jpose.position.z = htm_final[2][3]

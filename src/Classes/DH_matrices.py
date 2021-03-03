@@ -59,17 +59,12 @@ class DHmatrices:
 		
 	def rotm_to_htm(self, rotm, link_vec):
 		null_mat = np.concatenate((rotm, link_vec), axis=1)
-		print "null_mat_size:", null_mat.shape
 		null_vec = np.zeros((1,4), dtype = float)
-		print "null_vec_size:", null_vec.shape
 		null_vec[0][3] = 1.0
 		self.htm = np.concatenate((null_mat, null_vec))
-		print "htm:", self.htm
-		sys.exit()
 		return self.htm
 		
-		
-		
+				
 	@staticmethod	
 	def matmul(mat1, mat2, mat3):
 		return np.matmul(mat1, np.matmul(mat2, mat3))
@@ -80,8 +75,12 @@ class DHmatrices:
 		
 	@staticmethod
 	def htm_to_quat(htm):
-		rotm = htm[np.ix_([0,3],[0,3])]
-		quat = m2q(rotm) # np.array([x, y, z, w])
+		quat = m2q(htm) # np.array([x, y, z, w])
 		return quat
+		
+	@staticmethod
+	def htm_to_vec(htm):
+		vec = htm[:3, 3:4]
+		return vec
 		
 

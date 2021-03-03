@@ -39,16 +39,20 @@ link_vec = np.array([[0.    ],
  [0.    ],
  [0.0921]])
  
-null_mat = np.concatenate((rotm, link_vec), axis=1)
-print "null_mat_size:", null_mat.shape
-null_vec = np.zeros((1,4), dtype = float)
-# null_vec = np.zeros((1,4), dtype = float)
-print "null_vec_size:", null_vec.shape
-null_vec[0][3] = 1.0
-htm = np.zeros((4, 4), dtype = float)
-htm = np.concatenate((null_mat, null_vec))
-print "htm:", htm
-sys.exit()
+htm = np.array([[ 9.94954610e-01, -9.98269379e-02,  9.99533375e-03, -1.63954570e-03],
+ [ 9.98349038e-02,  9.95003971e-01, -2.99950003e-04, -8.53392208e-02],
+ [-9.91545368e-03,  1.29631982e-03,  9.99950000e-01,  2.23145395e-01],
+ [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]])
+ 
+# rotm = htm[np.ix_([1,3],[1,3])]
+rotm1 = htm[0:3, 0:3]
+print "rotm1:", rotm1
+rotm2 = rotation_matrix(pi/2, (0, 0, 1))
+print "rotm2:", rotm2
+q = m2q(rotm2)
+print "q:", q
+vec = htm[:3, 3:4]
+sys.exit("done")
 
 
 # s = np.array([0, -6, 0])
