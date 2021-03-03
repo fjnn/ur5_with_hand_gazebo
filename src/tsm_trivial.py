@@ -141,7 +141,7 @@ def plan_task_space_control(arm_group, robot_init, hand_pose):
 	return tpose
 
 	
-def adaptive_control(robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
+def adaptive_control(arm_group, robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
 	global _GYRO_SCALE
 	waypoints = []
 	# Read IMU.gyro
@@ -160,7 +160,6 @@ def adaptive_control(robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
 	# wpose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose.orientation)
 	
 	print "apose:", apose
-	sys.exit()
 	
 	waypoints.append(copy.deepcopy(apose))
 	
@@ -169,9 +168,9 @@ def adaptive_control(robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
                                    0.01,        # eef_step
                                    0.0)         # jump_threshold
 
-	# arm_group.execute(plan, wait=True)
-	# arm_group.stop()
-	# arm_group.clear_pose_targets()
+	arm_group.execute(plan, wait=True)
+	arm_group.stop()
+	arm_group.clear_pose_targets()
 	
 
 
@@ -233,7 +232,7 @@ def main():
 				print "Press Enter for adaptive tsm"
 				dummy_input = raw_input()
 				gyro = IMU.gyro_wrist
-				adaptive_control(robot_init, jsm_goal_pose, tsm_goal_pose, gyro)
+				adaptive_control(arm_group, robot_init, jsm_goal_pose, tsm_goal_pose, gyro)
 			# IMU.r.sleep()
 			
 			
