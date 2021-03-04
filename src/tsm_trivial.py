@@ -161,44 +161,47 @@ def adaptive_control(arm_group, robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
 	
 	print "apose:", apose
 	
-	# waypoints.append(copy.deepcopy(apose))
+	waypoints.append(copy.deepcopy(apose))
 	
 	# arm_group.set_position_target([apose.position.x, apose.position.y, apose.position.z])
 	# arm_group.go(wait=True)
 	
 
 	
-	# set_workspace(self, ws): """ Set the workspace for the robot as either [], [minX, minY, maxX, maxY] or [minX, minY, minZ, maxX, maxY, maxZ] """
 	
 	
-	# (plan, fraction) = arm_group.compute_cartesian_path(
-                                   # waypoints,   # waypoints to follow
-                                   # 0.01,        # eef_step
-                                   # 0.0)         # jump_threshold
+	(plan, fraction) = arm_group.compute_cartesian_path(
+                                   waypoints,   # waypoints to follow
+                                   0.01,        # eef_step
+                                   0.0)         # jump_threshold
 
-	# arm_group.execute(plan, wait=True)
-	# arm_group.stop()
-	# arm_group.clear_pose_targets()
+	arm_group.execute(plan, wait=True)
+	arm_group.stop()
+	arm_group.clear_pose_targets()
 	
 
 def set_constraints(arm_group):
 	goal_constraint = Constraints()
-	joint_values = [0.1, 0.2, 0.3]
+	joint_values = [0.0, -1.5, 1.5]
 	joint_names = arm_group.get_active_joints()
+	print "joint_names:", joint_names
 	for i in range(3):
 		joint_constraint = JointConstraint()
 		joint_constraint.joint_name = joint_names[i]
 		joint_constraint.position = joint_values[i]
 		joint_constraint.weight = 1.0
 		goal_constraint.joint_constraints.append(joint_constraint)
+		
+	# set_workspace(self, ws): """ Set the workspace for the robot as either [], [minX, minY, maxX, maxY] or [minX, minY, minZ, maxX, maxY, maxZ] """
+	
 	
 	arm_group.set_path_constraints(goal_constraint)
 	# arm_group._goal.request.goal_constraints.append(goal_constraint)
 	# arm_group._goal.planning_options.planning_scene_diff.robot_state.is_diff = True
 		
-	print "path const:", arm_group.get_path_constraints()
-	print "known const:", arm_group.get_known_constraints()
-	sys.exit("Done")
+	# print "path const:", arm_group.get_path_constraints()
+	# print "known const:", arm_group.get_known_constraints()
+	# sys.exit("Done")
 
 	
 
