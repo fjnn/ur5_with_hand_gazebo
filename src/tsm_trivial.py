@@ -23,6 +23,8 @@ from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
 
+from moveit_msgs.msg import Constraints, JointConstraint
+
 
 from Classes.IMU_class_elbow_angle import IMUsubscriber
 import Classes.Kinematics_with_Quaternions as kinematic
@@ -37,8 +39,9 @@ t = TransformStamped()
 IMU = IMUsubscriber()
 DHmatrices = DHmatrices()
 
-_GYRO_SCALE = 2000 # deg/sec
+# _GYRO_SCALE = 2000 # deg/sec
 # _GYRO_SCALE = 34.9066 # rad/sec
+_GYRO_SCALE = 10.0
 
 
 
@@ -106,8 +109,6 @@ def plan_joint_space_control(arm_group, **kwargs):
 			sys.exit("Returned - plan_joint_space_control")
 	
 	htm_final = DHmatrices.matmul(htm3, htm4, htm5)
-	print "htm_final:", htm_final
-	
 	quat_final = DHmatrices.htm_to_quat(htm_final)
 	vec_final = DHmatrices.htm_to_vec(htm_final)
 	
@@ -145,7 +146,6 @@ def adaptive_control(arm_group, robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
 	global _GYRO_SCALE
 	waypoints = []
 	# Read IMU.gyro
-	print "IMU gyro", gyro
 	# D gyro min-max range
 	# Calculate adaptive gain
 	c_x = (gyro.x/_GYRO_SCALE) * 100
@@ -153,24 +153,53 @@ def adaptive_control(arm_group, robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
 	c_z = (gyro.z/_GYRO_SCALE) * 100
 	
 	apose = Pose()
-	apose.position.x = robot_init.position.x + jsm_goal_pose.position.x + ((tsm_goal_pose.position.x -jsm_goal_pose.position.x) * c_x)
-	apose.position.y = robot_init.position.y + jsm_goal_pose.position.y + ((tsm_goal_pose.position.y -jsm_goal_pose.position.y) * c_y)
-	apose.position.z = robot_init.position.z + jsm_goal_pose.position.z + ((tsm_goal_pose.position.z -jsm_goal_pose.position.z) * c_z)
-	apose.orientation = robot_init.orientation
-	# wpose.orientation = kinematic.q_multiply(robot_init.orientation, hand_pose.orientation)
+	apose.position.x = robot_init.position.x + jsm_goal_pose.position.x + ((tsm_goal_pose.position.y -jsm_goal_pose.position.x) * c_x)
+	apose.position.y = robot_init.position.y + jsm_goal_pose.position.y + ((tsm_goal_pose.position.z -jsm_goal_pose.position.y) * c_y)
+	apose.position.z = robot_init.position.z + jsm_goal_pose.position.z + ((tsm_goal_pose.position.x -jsm_goal_pose.position.z) * c_z)
+	# apose.orientation = robot_init.orientation
+	apose.orientation = kinematic.q_multiply(robot_init.orientation, jsm_goal_pose.orientation)
 	
 	print "apose:", apose
 	
-	waypoints.append(copy.deepcopy(apose))
+	# waypoints.append(copy.deepcopy(apose))
 	
-	(plan, fraction) = arm_group.compute_cartesian_path(
-                                   waypoints,   # waypoints to follow
-                                   0.01,        # eef_step
-                                   0.0)         # jump_threshold
+	# arm_group.set_position_target([apose.position.x, apose.position.y, apose.position.z])
+	# arm_group.go(wait=True)
+	
 
-	arm_group.execute(plan, wait=True)
-	arm_group.stop()
-	arm_group.clear_pose_targets()
+	
+	# set_workspace(self, ws): """ Set the workspace for the robot as either [], [minX, minY, maxX, maxY] or [minX, minY, minZ, maxX, maxY, maxZ] """
+	
+	
+	# (plan, fraction) = arm_group.compute_cartesian_path(
+                                   # waypoints,   # waypoints to follow
+                                   # 0.01,        # eef_step
+                                   # 0.0)         # jump_threshold
+
+	# arm_group.execute(plan, wait=True)
+	# arm_group.stop()
+	# arm_group.clear_pose_targets()
+	
+
+def set_constraints(arm_group):
+	goal_constraint = Constraints()
+	joint_values = [0.1, 0.2, 0.3]
+	joint_names = arm_group.get_active_joints()
+	for i in range(3):
+		joint_constraint = JointConstraint()
+		joint_constraint.joint_name = joint_names[i]
+		joint_constraint.position = joint_values[i]
+		joint_constraint.weight = 1.0
+		goal_constraint.joint_constraints.append(joint_constraint)
+	
+	arm_group.set_path_constraints(goal_constraint)
+	# arm_group._goal.request.goal_constraints.append(goal_constraint)
+	# arm_group._goal.planning_options.planning_scene_diff.robot_state.is_diff = True
+		
+	print "path const:", arm_group.get_path_constraints()
+	print "known const:", arm_group.get_known_constraints()
+	sys.exit("Done")
+
 	
 
 
@@ -197,6 +226,7 @@ def main():
 		arm_group = movegroup_init()		
 		# rospy.Subscriber('/odom_tool0',Odometry,odometryCb_tool0)
 		# rospy.sleep(5)
+		set_constraints(arm_group)
 
 		IMU.init_subscribers_and_publishers()
 
@@ -214,26 +244,26 @@ def main():
 			
 				# jsm_goal_pose = Pose(Point(0.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
 				# tsm_goal_pose = Pose(Point(1.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
-				print "Press Enter for jsm"
-				dummy_input = raw_input()
+				# print "Press Enter for jsm"
+				# dummy_input = raw_input()
 				angle_x = float("{:.2f}".format(IMU.human_joint_imu.position[0]))
 				angle_y = float("{:.2f}".format(IMU.human_joint_imu.position[1]))
 				angle_z = float("{:.2f}".format(IMU.human_joint_imu.position[2]))
 				jsm_goal_pose = plan_joint_space_control(arm_group, wrist_1=angle_x, wrist_2=angle_y, wrist_3=angle_z)
 				print "jsm_goal:", jsm_goal_pose
 				
-				print "Press Enter for tsm"
-				dummy_input = raw_input()
+				# print "Press Enter for tsm"
+				# dummy_input = raw_input()
 				IMU.hand_pos_calculate()
 				hand_pose = IMU.tf_wrist
 				tsm_goal_pose = plan_task_space_control(arm_group, robot_init, hand_pose)
 				print "tsm_goal:", tsm_goal_pose
 
-				print "Press Enter for adaptive tsm"
-				dummy_input = raw_input()
+				# print "Press Enter for adaptive tsm"
+				# dummy_input = raw_input()
 				gyro = IMU.gyro_wrist
 				adaptive_control(arm_group, robot_init, jsm_goal_pose, tsm_goal_pose, gyro)
-			# IMU.r.sleep()
+			IMU.r.sleep()
 			
 			
 
