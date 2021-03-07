@@ -54,6 +54,7 @@ def movegroup_init():
 	robot = moveit_commander.RobotCommander()
 
 	arm_group = moveit_commander.MoveGroupCommander("manipulator")
+	# set_constraints(arm_group)
 	arm_group.set_named_target("home")
 	plan_arm = arm_group.go()  
 	return arm_group
@@ -161,23 +162,23 @@ def adaptive_control(arm_group, robot_init, jsm_goal_pose, tsm_goal_pose, gyro):
 	
 	print "apose:", apose
 	
-	waypoints.append(copy.deepcopy(apose))
+	# waypoints.append(copy.deepcopy(apose))
 	
-	# arm_group.set_position_target([apose.position.x, apose.position.y, apose.position.z])
-	# arm_group.go(wait=True)
+	arm_group.set_position_target([apose.position.x, apose.position.y, apose.position.z])
+	arm_group.go(wait=True)
 	
 
 	
 	
 	
-	(plan, fraction) = arm_group.compute_cartesian_path(
-                                   waypoints,   # waypoints to follow
-                                   0.01,        # eef_step
-                                   0.0)         # jump_threshold
+	# (plan, fraction) = arm_group.compute_cartesian_path(
+                                   # waypoints,   # waypoints to follow
+                                   # 0.01,        # eef_step
+                                   # 0.0)         # jump_threshold
 
-	arm_group.execute(plan, wait=True)
-	arm_group.stop()
-	arm_group.clear_pose_targets()
+	# arm_group.execute(plan, wait=True)
+	# arm_group.stop()
+	# arm_group.clear_pose_targets()
 	
 
 def set_constraints(arm_group):
@@ -189,7 +190,6 @@ def set_constraints(arm_group):
 		joint_constraint = JointConstraint()
 		joint_constraint.joint_name = joint_names[i]
 		joint_constraint.position = joint_values[i]
-		joint_constraint.weight = 1.0
 		goal_constraint.joint_constraints.append(joint_constraint)
 		
 	# set_workspace(self, ws): """ Set the workspace for the robot as either [], [minX, minY, maxX, maxY] or [minX, minY, minZ, maxX, maxY, maxZ] """
@@ -229,7 +229,7 @@ def main():
 		arm_group = movegroup_init()		
 		# rospy.Subscriber('/odom_tool0',Odometry,odometryCb_tool0)
 		# rospy.sleep(5)
-		set_constraints(arm_group)
+		# set_constraints(arm_group)
 
 		IMU.init_subscribers_and_publishers()
 

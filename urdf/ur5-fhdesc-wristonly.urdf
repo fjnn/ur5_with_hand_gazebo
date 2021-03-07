@@ -28,7 +28,7 @@
   <joint name="world_joint" type="fixed">
     <parent link="world"/>
     <child link="base_link"/>
-    <origin rpy="0.0 0.0 0.0" xyz="0.0 -1.0 1.0"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.0"/>
   </joint>
   <link name="base_link">
     <visual>
@@ -106,7 +106,7 @@
       <inertia ixx="0.421753803798" ixy="0.0" ixz="0.0" iyy="0.421753803798" iyz="0.0" izz="0.036365625"/>
     </inertial>
   </link>
-  <joint name="elbow_joint" type="revolute">
+  <joint name="elbow_joint" type="fixed">
     <parent link="upper_arm_link"/>
     <child link="forearm_link"/>
     <origin rpy="0.0 1.57079632679 0.0" xyz="0.0 -0.1719 0.612"/>
@@ -137,7 +137,7 @@
   <joint name="wrist_1_joint" type="revolute">
     <parent link="forearm_link"/>
     <child link="wrist_1_link"/>
-    <origin rpy="0.0 3.1415 0.0" xyz="0.0 0.0 0.5723"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 0.5723"/>
     <axis xyz="0 1 0"/>
     <limit effort="54.0" lower="-3.14159265359" upper="3.14159265359" velocity="3.2"/>
     <dynamics damping="0.0" friction="0.0"/>
