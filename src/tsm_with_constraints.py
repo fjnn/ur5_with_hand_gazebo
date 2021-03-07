@@ -58,7 +58,7 @@ def movegroup_init():
 	planning_frame = arm_group.get_planning_frame()
 	print "============ Reference frame: %s" % planning_frame
 
-	arm_group.set_end_effector_link("wrist_3_link")
+	# arm_group.set_end_effector_link("wrist_3_link")
 	eef_link = arm_group.get_end_effector_link()
 	print "============ End effector: %s" % eef_link
 
@@ -166,12 +166,14 @@ def main():
 		# robot_init = Pose(Point(0.000, 0.000, 0.000), Quaternion(0.000, 0.000, 0.0, 1.0))
 		robot_init = arm_group.get_current_pose().pose
 		print "robot_init:", robot_init
-		print "Press Enter "
-		dummy_input = raw_input()
-		inp = raw_input("Continue?")
-		arm_group.set_end_effector_link("wrist_3_link")
-		eef_link = arm_group.get_end_effector_link()
-		print "============ End effector: %s" % eef_link
+		inp = raw_input("Click Enter to set new pose?")
+		next_pose = Pose(Point(0.42, 0.19, 0.41), Quaternion(0.000, -0.707, -0.707, 0.000))
+		arm_group.set_pose_target(next_pose)
+		plan = arm_group.go(wait=True)
+		print "new pose:", arm_group.get_current_pose().pose
+		sys.exit("Done")
+		pose_ref_frame = arm_group.get_pose_reference_frame()
+		print "============ pose_ref_frame: %s" % pose_ref_frame
 		movegroup_move_pose(arm_group)
 		robot_move = arm_group.get_current_pose().pose
 		print "robot_move:", robot_move
