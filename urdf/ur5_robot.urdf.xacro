@@ -6,7 +6,8 @@
   <xacro:include filename="$(find ur5_with_hand_gazebo)/urdf/common.gazebo.xacro" />
 
   <!-- ur5 -->
-  <xacro:include filename="$(find ur5_with_hand_gazebo)/urdf/ur5.urdf.xacro" />
+  <xacro:include filename="$(find ur5_with_hand_gazebo)/urdf/ur5_tool0_moved.urdf.xacro" />
+  <!--<xacro:include filename="$(find ur5_with_hand_gazebo)/urdf/ur5.urdf.xacro" />-->
   <!--<xacro:include filename="$(find ur5_with_hand_gazebo)/urdf/ur5_with_camera.urdf.xacro" />-->
 
   <!-- arm -->
