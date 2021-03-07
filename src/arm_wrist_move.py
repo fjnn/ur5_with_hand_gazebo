@@ -68,11 +68,51 @@ def movegroup_init():
 	plan_wrist = wrist_group.go()
 	wrist_group.get_current_pose().pose
 	tool0_pose = wrist_group.get_current_pose().pose
-	print "tool0:", tool0_pose  #  rosrun tf tf_echo /world /tool0
+	forearm_pose = arm_group.get_current_pose().pose
+	print "forearm:", forearm_pose  #  rosrun tf tf_echo /world /tool0
+	# print "tool0:", tool0_pose  #  rosrun tf tf_echo /world /tool0
 	return arm_group, wrist_group, robot
 	
-def move_arm():
-	pass
+def move_arm(arm_group):
+	goal_c = Constraints()
+	goal_c.name = "traj_constraint"
+	# Position constraint
+	position_c = PositionConstraint()
+	# position_c.header = goal_to_append.request.goal_constraints[0].position_constraints[0].header
+	# position_c.link_name = goal_to_append.request.goal_constraints[0].position_constraints[0].link_name if link_name == None else link_name
+	position_c.link_name = "forearm_link"
+	position_c.target_point_offset = Vector3(0.0, 0.0, 0.0)
+	# position_c.constraint_region.primitives.append(SolidPrimitive(type=SolidPrimitive.SPHERE, dimensions=[0.01]))
+	# position_c.constraint_region.primitive_poses.append(goal_pose)
+	position_c.weight = 2.0
+	goal_c.position_constraints.append(position_c)
+	# arm_group.set_path_constraints(goal_c)
+	print "Constraints:", arm_group.get_known_constraints()
+	arm_group.set_goal_position_tolerance(0.01)
+	arm_group.set_goal_orientation_tolerance(0.1)
+	arm_group.set_goal_joint_tolerance(0.01)
+	arm_current_joint_val = arm_group.get_current_joint_values()
+	print "Current joint values:", arm_current_joint_val
+	# arm_current_joint_val[0] = -2.9
+	# arm_group.set_joint_value_target(arm_current_joint_val)
+	# arm_group.go(wait=True) 
+	# forearm_pose = arm_group.get_current_pose().pose
+	# print "forearm-2:", forearm_pose  #  rosrun tf tf_echo /world /tool0
+  # print "Goal Tolerance:", arm_group.get_goal_tolerance()
+	
+	
+	# set orientation target
+	arm_ref_frame = arm_group.get_pose_reference_frame()
+	target_pose = PoseStamped()
+	target_pose.header.frame_id = arm_ref_frame
+	target_pose.pose.position.z = 1.8
+	# target_pose.pose.orientation.z = 0.6
+	# target_pose.pose.orientation.w = 0.707
+	dummy_input = raw_input("Move pose?")
+	
+	arm_group.set_pose_target(target_pose)
+	arm_group.go()
+	sys.exit("Done")
 	
 def move_wrist(wrist_group):
 	'''
@@ -100,21 +140,36 @@ def move_wrist(wrist_group):
 	# position_c.constraint_region.primitive_poses.append(goal_pose)
 	position_c.weight = 2.0
 	goal_c.position_constraints.append(position_c)
-	wrist_group.set_path_constraints(goal_c)
+	# wrist_group.set_path_constraints(goal_c)
+	print "Constraints:", wrist_group.get_known_constraints()
+	wrist_group.set_goal_position_tolerance(0.01)
+	wrist_group.set_goal_orientation_tolerance(0.1)
+	wrist_group.set_goal_joint_tolerance(0.01)
+	wrist_current_joint_val = wrist_group.get_current_joint_values()
+	print "Current joint values:", wrist_current_joint_val
+	wrist_current_joint_val[0] = -2.9
+	# wrist_group.set_joint_value_target(wrist_current_joint_val)
+	# wrist_group.go(wait=True) 
+	tool0_pose = wrist_group.get_current_pose().pose
+	print "tool0-2:", tool0_pose  #  rosrun tf tf_echo /world /tool0
+  # print "Goal Tolerance:", wrist_group.get_goal_tolerance()
+	
 	
 	# set orientation target
 	wrist_ref_frame = wrist_group.get_pose_reference_frame()
 	target_pose = PoseStamped()
 	target_pose.header.frame_id = wrist_ref_frame
-	target_pose.pose.orientation.x = 0.0
-	target_pose.pose.orientation.y = 0.0
-	target_pose.pose.orientation.z = 0.0
-	target_pose.pose.orientation.w = 1.0
+	target_pose.pose.position.y = -0.39
+	# target_pose.pose.orientation.z = 0.6
+	# target_pose.pose.orientation.w = 0.707
 	dummy_input = raw_input("Move pose?")
 	
 	wrist_group.set_pose_target(target_pose)
 	wrist_group.go()
 	sys.exit("Done")
+	
+
+
 	
 	
 	
@@ -201,7 +256,7 @@ def append_traj_to_move_group_goal(goal_to_append=None, goal_pose=Pose(), link_n
 def main():
     try:
 		arm_group, wrist_group, robot = movegroup_init()	
-		move_wrist(wrist_group)	
+		move_arm(arm_group)	
 		# set_constraints(arm_group)
 
 		IMU.init_subscribers_and_publishers()
