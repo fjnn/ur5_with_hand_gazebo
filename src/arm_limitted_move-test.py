@@ -93,13 +93,52 @@ def move_joint(arm_group):
 	joint_goal[4] = pi/2
 	arm_group.go(joint_goal, wait=True)
 	print "Final joint values:", arm_group.get_current_joint_values()
+	
+
+pose_goal = Pose()
+def move_ee_pose(arm_group):
+	"""
+	Move end-effector to specified pose
+	"""
+	current_pose = arm_group.get_current_pose(end_effector_link="tool0")
+	print "current_pose:", current_pose
+	# pose home
+  # position:
+    # x: 0.422562465178
+    # y: 0.191221247515
+    # z: 0.418782506626
+  # orientation:
+    # x: -0.000369305197861
+    # y: 0.707106486605
+    # z: 0.707106290394
+    # w: 0.000987066022963
+    
+  # pose home + joint_goal[4] = pi/2
+  # position:
+    # x: 0.504844264658
+    # y: 0.108320076232
+    # z: 0.418621428128
+  # orientation:
+    # x: 0.500459099487
+    # y: 0.498982558429
+    # z: 0.49980940138
+    # w: 0.500747100257
+
+	pose_goal.position.x = 0.504
+	pose_goal.position.y = 0.108
+	pose_goal.position.z = 0.418
+	arm_group.set_pose_target(pose_goal)
+	raw_input("Cont'd")
+	arm_group.go(pose_goal, wait=True)
+	print "Final joint values:", arm_group.get_current_joint_values()
 
 	
 
 def main():
 	try:
 		arm_group, robot = movegroup_init()	
-		move_joint(arm_group)
+		# move_joint(arm_group)
+		move_ee_pose(arm_group)
 
 		rate = rospy.Rate(10) # 10hz
 		while not rospy.is_shutdown():
