@@ -42,13 +42,14 @@ def movegroup_init():
 	robot = moveit_commander.RobotCommander()
 
 	arm_group = moveit_commander.MoveGroupCommander("manipulator")
-	
+	arm_group.allow_replanning(True)
+
 	# arm_group.set_end_effector_link("wrist_3_link")
 	eef_link1 = arm_group.get_end_effector_link()
 	print "============ Arm End effector: %s" % eef_link1
 
 	
-	arm_group.set_goal_joint_tolerance(0.1)
+	arm_group.set_goal_joint_tolerance(0.001)
 	arm_group.set_named_target("home")
 	plan_arm = arm_group.go()  
 
@@ -88,6 +89,7 @@ def move_joint(arm_group):
 	print "joint_goal:", joint_goal
 	# ============ Arm End effector: tool0
 	# joint_goal: [0.007552534881796191, -1.4923353069701557, 1.47499200036974, -0.07242291329326278, -0.09289451682609595, 0.010221995571863651]
+
 	joint_goal[4] = pi/2
 	arm_group.go(joint_goal, wait=True)
 	print "Final joint values:", arm_group.get_current_joint_values()
