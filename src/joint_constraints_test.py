@@ -38,29 +38,33 @@ def movegroup_init():
 	print "joint_goal:", joint_pos
 
 	return arm_group, robot, client
+	
+
+def send_joint_trajectory(arm_group, client):
+	goal = FollowJointTrajectoryGoal()
+	goal.trajectory.joint_names = arm_group.get_active_joints()
+
+	point1 = JointTrajectoryPoint()
+	point2 = JointTrajectoryPoint()
+	point1.positions = [0.000, -pi/2, pi/2,  0.0, 0.0, 0.0]
+	point2.positions = [0.000, -pi/2, pi/2,  pi/2, 0.0, 0.0]
+
+	goal.trajectory.points = [point1, point2]
+
+	goal.trajectory.points[0].time_from_start = rospy.Duration(2.0)
+	goal.trajectory.points[1].time_from_start = rospy.Duration(4.0)
+
+	goal.trajectory.header.stamp = rospy.Time.now()+rospy.Duration(1.0)
+
+	client.send_goal(goal)
+	print client.wait_for_result()
 
 	
 def main():
 	try:
 		arm_group, robot, client = movegroup_init()
-		
-		goal = FollowJointTrajectoryGoal()
-		goal.trajectory.joint_names = arm_group.get_active_joints()
+		send_joint_trajectory(arm_group, client)
 
-		point1 = JointTrajectoryPoint()
-		point2 = JointTrajectoryPoint()
-		point1.positions = [0.000, -pi/2, pi/2,  0.0, 0.0, 0.0]
-		point2.positions = [0.000, -pi/2, pi/2,  pi/2, 0.0, 0.0]
-
-		goal.trajectory.points = [point1, point2]
-
-		goal.trajectory.points[0].time_from_start = rospy.Duration(2.0)
-		goal.trajectory.points[1].time_from_start = rospy.Duration(4.0)
-
-		goal.trajectory.header.stamp = rospy.Time.now()+rospy.Duration(1.0)
-
-		client.send_goal(goal)
-		print client.wait_for_result()
 	except rospy.ROSInterruptException: pass
 
 
