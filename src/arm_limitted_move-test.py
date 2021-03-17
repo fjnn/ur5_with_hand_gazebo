@@ -79,15 +79,29 @@ def move_cartesian(arm_group):
 	 
 	arm_group.execute(plan, wait=True)
 	
+def move_joint(arm_group):
+	"""
+	Move wrist joints and get ee_pose.
+	Later I will use this info only to move wrist
+	"""
+	joint_goal = arm_group.get_current_joint_values()
+	print "joint_goal:", joint_goal
+	# ============ Arm End effector: tool0
+	# joint_goal: [0.007552534881796191, -1.4923353069701557, 1.47499200036974, -0.07242291329326278, -0.09289451682609595, 0.010221995571863651]
+	joint_goal[4] = pi/2
+	arm_group.go(joint_goal, wait=True)
+	print "Final joint values:", arm_group.get_current_joint_values()
+
+	
 
 def main():
 	try:
 		arm_group, robot = movegroup_init()	
-		# set_constraints(arm_group)	
+		move_joint(arm_group)
 
 		rate = rospy.Rate(10) # 10hz
 		while not rospy.is_shutdown():
-			move_cartesian(arm_group)
+			# move_cartesian(arm_group)
 			rate.sleep()
 
 	except KeyboardInterrupt:
