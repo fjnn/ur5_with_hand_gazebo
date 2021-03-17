@@ -127,7 +127,8 @@ def move_ee_pose(arm_group):
 	pose_goal.position.x = 0.504
 	pose_goal.position.y = 0.108
 	pose_goal.position.z = 0.418
-	arm_group.set_pose_target(pose_goal)
+	arm_group.set_position_target([pose_goal.position.x, pose_goal.position.y, pose_goal.position.z])
+	# arm_group.set_pose_target(pose_goal)
 	raw_input("Cont'd")
 	arm_group.go(pose_goal, wait=True)
 	print "Final joint values:", arm_group.get_current_joint_values()
