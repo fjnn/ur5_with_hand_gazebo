@@ -5,7 +5,7 @@
   <arg name="gui" default="true"/>
   
 	<!-- send robot urdf to param server -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ur5_with_hand_gazebo)/urdf/ur5_robot.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ur5_with_hand_gazebo)/urdf/ur5_arm_limited_robot.urdf.xacro'" />
   
   <!--<env name="GAZEBO_MODEL_PATH" value="/home/gizem/catkin_ws/src:/home/gizem/catkin_ws/src/ur5_with_hand_gazebo/models:~/.gazebo/models:${GAZEBO_MODEL_PATH}"/>-->
   <!--<env name="MESH_WORKSPACE_PATH" value="/workspace/src"/>-->
@@ -29,11 +29,19 @@
 
   <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
 
+  <!-- Only Arm Controller -->
+  <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
+  <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller" respawn="false" output="screen"/>
+
+
+  <!-- Arm+Wrist Controller
+
   <rosparam file="$(find ur5_with_hand_gazebo)/config/only_arm_controller.yaml" command="load"/>
   <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller" respawn="false" output="screen"/>
 
 	<rosparam file="$(find ur5_with_hand_gazebo)/config/only_wrist_controller.yaml" command="load"/>
-  <node name="wrist_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn wrist_controller" respawn="false" output="screen"/>
+  <node name="wrist_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn wrist_controller" respawn="false" output="screen"/>-->
+
 
   <!-- Combine joint values 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>-->

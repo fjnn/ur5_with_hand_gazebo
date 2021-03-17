@@ -51,27 +51,21 @@ def movegroup_init():
 	@returns Initialized groups
 	"""
 	moveit_commander.roscpp_initialize(sys.argv)
+	rospy.init_node('arm_limitted_move_node', anonymous=True)
 	robot = moveit_commander.RobotCommander()
 
-	arm_group = moveit_commander.MoveGroupCommander("arm")
-	wrist_group = moveit_commander.MoveGroupCommander("wrist")
+	arm_group = moveit_commander.MoveGroupCommander("manipulator")
 	
 	# arm_group.set_end_effector_link("wrist_3_link")
 	eef_link1 = arm_group.get_end_effector_link()
 	print "============ Arm End effector: %s" % eef_link1
-	eef_link2 = wrist_group.get_end_effector_link()
-	print "============ Wrist End effector: %s" % eef_link2
+
 	
-	arm_group.set_named_target("init0")
-	plan_arm = arm_group.go()  
-	wrist_group.set_named_target("init")
-	plan_wrist = wrist_group.go()
-	wrist_group.get_current_pose().pose
-	tool0_pose = wrist_group.get_current_pose().pose
-	forearm_pose = arm_group.get_current_pose().pose
-	# print "forearm:", forearm_pose  #  rosrun tf tf_echo /world /tool0
-	# print "tool0:", tool0_pose  #  rosrun tf tf_echo /world /tool0
-	return arm_group, wrist_group, robot
+	arm_group.set_goal_joint_tolerance(0.1)
+	# arm_group.set_named_target("home")
+	# plan_arm = arm_group.go()  
+
+	return arm_group, robot
 	
 def move_arm(arm_group):
 	goal_c = Constraints()
@@ -169,11 +163,6 @@ def move_wrist(wrist_group):
 	sys.exit("Done")
 	
 
-
-	
-	
-	
-
 def movegroup_move_pose(arm_group):
 	"""
 	Dummy func
@@ -184,7 +173,7 @@ def movegroup_move_pose(arm_group):
 
 def set_constraints(arm_group):
 	goal_constraint = Constraints()
-	joint_values = [0.0, -1.5, 1.5]
+	joint_values = [0, -1.57, 1.57]
 	joint_names = arm_group.get_active_joints()
 	print "joint_names:", joint_names
 	for i in range(3):
@@ -198,6 +187,7 @@ def set_constraints(arm_group):
 	
 	
 	arm_group.set_path_constraints(goal_constraint)
+	arm_group.go()
 
 	
 def plan_task_space_control(arm_group, robot_init, hand_pose):
@@ -255,8 +245,10 @@ def append_traj_to_move_group_goal(goal_to_append=None, goal_pose=Pose(), link_n
 
 def main():
     try:
-		arm_group, wrist_group, robot = movegroup_init()	
-		move_wrist(wrist_group)	
+		arm_group, robot = movegroup_init()	
+		set_constraints(arm_group)	
+		
+		sys.exit("Done")
 		# move_arm(arm_group)	
 		# set_constraints(arm_group)
 
