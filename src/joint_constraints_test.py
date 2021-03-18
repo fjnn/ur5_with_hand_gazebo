@@ -6,7 +6,7 @@ import sys
 import rospy, actionlib, roslib
 import moveit_commander
 
-from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, MoveGroupGoal
+from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, MoveGroupAction
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from arm_navigation_msgs.msg import MoveArmResult, MoveArmAction, MoveArmActionGoal, MoveArmGoal, JointConstraint, PositionConstraint, SimplePoseConstraint, OrientationConstraint, Shape
@@ -39,7 +39,12 @@ def movegroup_init():
 	return arm_group, robot
 	
 
-def send_joint_trajectory(arm_group, client):
+def send_joint_trajectory(arm_group):
+	'''
+	Create a FollowJointTrajectoryAction client and sen joint trajectory.
+	Note: works fine
+	@params arm_group:  moveit_commander.MoveGroupCommander("manipulator_name")
+	'''
 	client = actionlib.SimpleActionClient('/arm_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
 	client.wait_for_server()
 	
@@ -61,15 +66,38 @@ def send_joint_trajectory(arm_group, client):
 	client.send_goal(goal)
 	print client.wait_for_result()
 	
-def move_arm_ompl(arm_group):
-	Şimdi rostopic list yaptın, action serverları buldun. MoveGroupActionGoal bulamadım ama
-	MoveGroup Action mesajı burada: http://docs.ros.org/en/melodic/api/moveit_msgs/html/action/MoveGroup.html
-	Buradan yürürsün artık
+def send_point_target(arm_group, client):
+	'''
+	Try to make a control_msgs/PointHeadActionGoal action from moveit or something. Try to send here
+	'''
+	# client = actionlib.SimpleActionClient('/arm_controller/follow_joint_trajectory', FollowJointTrajectoryAction)
+	# client.wait_for_server()
+	
+	# goal = FollowJointTrajectoryGoal()
+	# goal.trajectory.joint_names = arm_group.get_active_joints()
+
+	# point1 = JointTrajectoryPoint()
+	# point2 = JointTrajectoryPoint()
+	# point1.positions = [0.000, -pi/2, pi/2,  0.0, 0.0, 0.0]
+	# point2.positions = [0.000, -pi/2, pi/2,  pi/2, 0.0, 0.0]
+
+	# goal.trajectory.points = [point1, point2]
+
+	# goal.trajectory.points[0].time_from_start = rospy.Duration(2.0)
+	# goal.trajectory.points[1].time_from_start = rospy.Duration(4.0)
+
+	# goal.trajectory.header.stamp = rospy.Time.now()+rospy.Duration(1.0)
+
+	# client.send_goal(goal)
+	# print client.wait_for_result()
+	pass
+	
+def plan_arm_ompl(arm_group):
 	print "Started ompl"
-	service = "move_arm"
-	client = actionlib.SimpleActionClient(service, MoveArmAction)
+	client = actionlib.SimpleActionClient('/move_group', MoveGroupAction)
 	client.wait_for_server()
 	print "opml server set"
+	sys.exit("Done")
 
 	goal = MoveArmGoal()
 	goal.disable_ik = True
@@ -127,7 +155,7 @@ def main():
 	try:
 		arm_group, robot = movegroup_init()
 		# send_joint_trajectory(arm_group, client)
-		move_arm_ompl(arm_group)
+		plan_arm_ompl(arm_group)
 
 	except rospy.ROSInterruptException: pass
 
