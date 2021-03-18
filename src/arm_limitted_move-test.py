@@ -23,7 +23,7 @@ from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
 
-from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint
+from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, MoveGroupGoal
 
 
 from Classes.IMU_class_elbow_angle import IMUsubscriber
@@ -96,6 +96,9 @@ def move_joint(arm_group):
 	
 
 pose_goal = Pose()
+joint_constraint = JointConstraint()
+moveit_goal = MoveGroupGoal()
+goal_constraint = Constraints()
 def move_ee_pose(arm_group):
 	"""
 	Move end-effector to specified pose
@@ -123,21 +126,73 @@ def move_ee_pose(arm_group):
     # y: 0.498982558429
     # z: 0.49980940138
     # w: 0.500747100257
-
+	joint_values = arm_group.get_current_joint_values()
 	pose_goal.position.x = 0.504
 	pose_goal.position.y = 0.108
 	pose_goal.position.z = 0.418
 	arm_group.set_position_target([pose_goal.position.x, pose_goal.position.y, pose_goal.position.z])
 	# arm_group.set_pose_target(pose_goal)
-	raw_input("Cont'd")
+	raw_input("Set constraints?")
+	print "Const-0:", arm_group.get_known_constraints()
+	joint_names = arm_group.get_active_joints()
+	print "joint_names:", joint_names
+	for i in range(len(joint_names)):
+		if i<3:
+			joint_constraint.joint_name = joint_names[i]
+			joint_constraint.position = joint_values[i]
+			joint_constraint.weight = 10.0 # Closer to zero means less important
+			goal_constraint.joint_constraints.append(joint_constraint)
+		elif i>=3:
+			joint_constraint.weight = 0.0 # Closer to zero means less important
+		else:
+			print "Sth is wrong"
+		print "i:", i
+	
+	print "Const-1:", arm_group.get_known_constraints()
+	moveit_goal.request.goal_constraints.append(goal_constraint)
+	print "Const-2:", arm_group.get_known_constraints()
+	moveit_goal.request.goal_constraints.append(goal_constraint)
+	moveit_goal.request.num_planning_attempts = 1
+	moveit_goal.request.allowed_planning_time = 5.0
+	moveit_goal.planning_options.plan_only = False
+	moveit_goal.planning_options.planning_scene_diff.is_diff = True
+	moveit_goal.request.group_name = arm_group
+	
+	# arm_group.motion_plan_request.goal_constraints.joint_constraints.append(goal_constraint)
+	arm_group.set_path_constraints(goal_constraint)
+	print "Const-3:", arm_group.get_known_constraints()
 	arm_group.go(pose_goal, wait=True)
 	print "Final joint values:", arm_group.get_current_joint_values()
-
+	raw_input("Done")
+	sys.exit()
 	
+def set_constraints(arm_group):
+	goal_constraint = Constraints()
+	joint_values = [0.0, -1.5, 1.5]
+	joint_names = arm_group.get_active_joints()
+	print "joint_names:", joint_names
+	for i in range(3):
+		joint_constraint = JointConstraint()
+		joint_constraint.joint_name = joint_names[i]
+		joint_constraint.position = joint_values[i]
+		joint_constraint.weight = 1.0
+		goal_constraint.joint_constraints.append(joint_constraint)
+		
+	# set_workspace(self, ws): """ Set the workspace for the robot as either [], [minX, minY, maxX, maxY] or [minX, minY, minZ, maxX, maxY, maxZ] """
+	
+	
+	arm_group.set_trajectory_constraints(goal_constraint)
+	# arm_group._g.request.goal_constraints.append(goal_constraint)
+	# arm_group._goal.planning_options.planning_scene_diff.robot_state.is_diff = True
+		
+	# print "path const:", arm_group.get_path_constraints()
+	print "known const:", arm_group.get_known_constraints()
+	sys.exit("Done")
 
 def main():
 	try:
 		arm_group, robot = movegroup_init()	
+		set_constraints(arm_group)
 		# move_joint(arm_group)
 		move_ee_pose(arm_group)
 
