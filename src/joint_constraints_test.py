@@ -6,7 +6,7 @@ import sys
 import rospy, actionlib, roslib
 import moveit_commander
 
-from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, MoveGroupAction
+from moveit_msgs.msg import Constraints, JointConstraint, PositionConstraint, MoveGroupAction, MoveGroupActionGoal, MoveGroupGoal
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal
 from arm_navigation_msgs.msg import MoveArmResult, MoveArmAction, MoveArmActionGoal, MoveArmGoal, JointConstraint, PositionConstraint, SimplePoseConstraint, OrientationConstraint, Shape
@@ -97,25 +97,18 @@ def plan_arm_ompl(arm_group):
 	client = actionlib.SimpleActionClient('/move_group', MoveGroupAction)
 	client.wait_for_server()
 	print "opml server set"
-	sys.exit("Done")
-
-	goal = MoveArmGoal()
-	goal.disable_ik = True
-	goal.planner_service_name = "ompl_planning/plan_kinematic_path"
-	goal.motion_plan_request.group_name = "arm_group"
-	goal.motion_plan_request.num_planning_attempts = 5
-	goal.motion_plan_request.allowed_planning_time = rospy.Time.now()+rospy.Duration(5.0)
-	goal.motion_plan_request.planner_id = ""
-
-	# addPositionConstraint(goal, x, y, z)
-	# addOrientationConstraint(goal)
-
-	constraint = set_joint_constraints(arm_group)
-	goal.motion_plan_request.goal_constraints.joint_constraints.append(constraint)
+	
+	move_group_action_goal = MoveGroupActionGoal()
+	goal = MoveGroupGoal()
+	
+	goal.request.goal_constraints = set_joint_constraints(arm_group)
+	
+	# goal_constraint = set_joint_constraints(arm_group)
 	raw_input("Send goal?")
 
-	# client.send_goal(goal)
-	client.send_goal(goal, done_cb=move_arm_completed_cb)
+
+	move_group_action_goal.goal = goal
+	client.send_goal(goal) # field goal.request.goal_constraints must be a list or tuple type
 	client.wait_for_result()
 	raw_input("Done")
 	sys.exit()
@@ -128,17 +121,17 @@ def set_joint_constraints(arm_group):
 	joint_values = arm_group.get_current_joint_values()
 	raw_input("Set joint constraints?")
 	for i in range(len(joint_names)):
-		joint_constraint.joint_name = joint_names[i]
-		joint_constraint.position = joint_values[i]
 		if i<3:
+			joint_constraint.joint_name = joint_names[i]
+			joint_constraint.position = joint_values[i]
 			joint_constraint.weight = 10.0 # Closer to zero means less important
 		elif i>=3 and i<6:
 			joint_constraint.weight = 0.0 # Closer to zero means less important
 		else:
 			print "Sth is wrong"
-		# goal_constraint.joint_constraints.append(joint_constraint)
+		goal_constraint.joint_constraints.append(joint_constraint)
 		print "i:", i
-	return joint_constraint
+	return goal_constraint
 	
 def move_arm_completed_cb(status, result):
     if status == GoalStatus.SUCCEEDED:
@@ -146,16 +139,57 @@ def move_arm_completed_cb(status, result):
     else:
         print "Failed"
         print result.error_code.val
-		
 
+def move_ee_pose(arm_group):
+	"""
+	Move end-effector to specified pose
+	"""
+	current_pose = arm_group.get_current_pose(end_effector_link="tool0")
+	print "current_pose:", current_pose
+	# pose home
+  # position:
+    # x: 0.422562465178
+    # y: 0.191221247515
+    # z: 0.418782506626
+  # orientation:
+    # x: -0.000369305197861
+    # y: 0.707106486605
+    # z: 0.707106290394
+    # w: 0.000987066022963
+    
+  # pose home + joint_goal[4] = pi/2
+  # position:
+    # x: 0.504844264658
+    # y: 0.108320076232
+    # z: 0.418621428128
+  # orientation:
+    # x: 0.500459099487
+    # y: 0.498982558429
+    # z: 0.49980940138
+    # w: 0.500747100257
+	print "Initial joint values:", arm_group.get_current_joint_values()
+	pose_goal.position.x = 0.504
+	pose_goal.position.y = 0.108
+	pose_goal.position.z = 0.418
+	arm_group.set_position_target([pose_goal.position.x, pose_goal.position.y, pose_goal.position.z])
+	
+
+	# arm_group.set_path_constraints(goal_constraint)
+	print "Const-3:", arm_group.get_known_constraints()
+	arm_group.go(pose_goal, wait=True)
+	print "Final joint values:", arm_group.get_current_joint_values()
 
 
 	
 def main():
 	try:
 		arm_group, robot = movegroup_init()
-		# send_joint_trajectory(arm_group, client)
 		plan_arm_ompl(arm_group)
+		move_ee_pose(arm_group)
+		
+		raw_input("Done")
+		sys.exit()
+		
 
 	except rospy.ROSInterruptException: pass
 
