@@ -90,7 +90,7 @@ class IMUsubscriber:
         else:
 					self.hand_pos_calculate()
 					self.pub.publish(self.human_joint_imu)
-					self.pub_hand_pose.publish(self.tf_wrist)
+					self.pub_hand_pose.publish(self.hand_pose)
 					# TODO: here needs update p_hand = hand_link*q_wrist
 					# self.p_hand.x = np.degrees(self.human_joint_imu.position[6])  # pitch
 					# self.p_hand.y = np.degrees(self.human_joint_imu.position[7])  # yaw

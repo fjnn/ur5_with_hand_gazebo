@@ -4,8 +4,10 @@ from math import pi
 from math import cos
 from math import sin
 import numpy as np
+from geometry_msgs.msg import Pose
 
 from tf.transformations import quaternion_from_matrix as m2q
+from tf.transformations import quaternion_matrix as q2m
 
 
 class DHmatrices:
@@ -82,5 +84,13 @@ class DHmatrices:
 	def htm_to_vec(htm):
 		vec = htm[:3, 3:4]
 		return vec
+		
+	@staticmethod
+	def pose_to_htm(pose):
+		pose_quat = np.array([pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w])
+		pose_rotm = q2m(pose_quat) # actually 4x4 matrix created (a htm)
+		pose_link = np.array([pose.position.x, pose.position.y, pose.position.z])
+		pose_rotm[:3, 3] = pose_link
+		return pose_rotm
 		
 
