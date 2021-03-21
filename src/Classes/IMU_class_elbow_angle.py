@@ -55,7 +55,7 @@ class IMUsubscriber:
         self.q_wrist_tsm_init = Quaternion(1.0, 1.0, 1.0, 1.0)
         self.q_wrist_tsm = Quaternion(0, 0, 0, 1.0)
 
-        self.p_hand = Vector3()
+        self.hand_pose = Pose()
         self.wrist_angles = np.array([0.0, 0.0, 0.0])
         self.human_joint_imu = JointState()
         self.human_joint_imu.name = ['left_wrist_0', 'left_wrist_1', 'left_wrist_2']
@@ -68,6 +68,7 @@ class IMUsubscriber:
 
     def init_subscribers_and_publishers(self):
         self.pub = rospy.Publisher('/human_joint_states', JointState, queue_size=1)
+        self.pub_hand_pose = rospy.Publisher('/hand_pose', Pose, queue_size=1)
 #        self.pub_test = rospy.Publisher('/my_test_msg', test_msg, queue_size=10)
 #        self.pub_p_hand = rospy.Publisher('/p_hand', Vector3, queue_size=1)
         self.sub_imu_e = rospy.Subscriber('/sensor_l_elbow', Imu, self.cb_imu_elbow)
@@ -86,12 +87,15 @@ class IMUsubscriber:
         if not self.calibration_flag > _CALIBRATION_TH:
             self.calibration_flag = self.calibration_flag + 1
             print "calibrating"
-        self.pub.publish(self.human_joint_imu)
-        # TODO: here needs update p_hand = hand_link*q_wrist
-        # self.p_hand.x = np.degrees(self.human_joint_imu.position[6])  # pitch
-        # self.p_hand.y = np.degrees(self.human_joint_imu.position[7])  # yaw
-        # self.p_hand.z = np.degrees(self.human_joint_imu.position[8])  # roll
-        # self.pub_p_hand.publish(self.p_hand)
+        else:
+					self.hand_pos_calculate()
+					self.pub.publish(self.human_joint_imu)
+					self.pub_hand_pose.publish(self.tf_wrist)
+					# TODO: here needs update p_hand = hand_link*q_wrist
+					# self.p_hand.x = np.degrees(self.human_joint_imu.position[6])  # pitch
+					# self.p_hand.y = np.degrees(self.human_joint_imu.position[7])  # yaw
+					# self.p_hand.z = np.degrees(self.human_joint_imu.position[8])  # roll
+					# self.pub_p_hand.publish(self.p_hand)
 
 
     def cb_imu_elbow(self, msg):
@@ -121,10 +125,10 @@ class IMUsubscriber:
         self.human_joint_imu.position[1] = self.wrist_angles[1]  # yaw
         self.human_joint_imu.position[2] = self.wrist_angles[2]  # roll
         
-    def hand_pos_calculate(self, v=hand_link):
+    def hand_pos_calculate2(self, v=hand_link):
 			"""
+			NOTE: Use this when you calibrate hand in BENT pose
 			Calculate current hand_pose (self.tf_wrist)
-			@param robot_ee_pose: type Pose(), robot ee_link position&orientation
 			@param v=hand_link default
 			"""
 			global _HAND_POS_INIT, v_rotated_init
@@ -135,7 +139,8 @@ class IMUsubscriber:
 					dummy_input = raw_input()
 					self.q_wrist_tsm_init = kinematic.q_invert(self.q_wrist_sensorframe)
 					v_rotated_init = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
-					print "calibration:", self.calibration_flag, "self.q_wrist_tsm_init:", self.q_wrist_tsm_init
+					# print "calibration:", self.calibration_flag, "self.q_wrist_tsm_init:", self.q_wrist_tsm_init
+					print "v_rotated_init:", v_rotated_init
 					_HAND_POS_INIT = True
 			else:
 					# Init origin poses and the quaternion will be this
@@ -145,7 +150,34 @@ class IMUsubscriber:
 					self.tf_wrist.position.x = v_rotated[0]-v_rotated_init[0]
 					self.tf_wrist.position.y = v_rotated[1]-v_rotated_init[1]
 					self.tf_wrist.position.z = v_rotated[2]-v_rotated_init[2]
+					
+					self.hand_pose.position.x = v_rotated[0]
+					self.hand_pose.position.y = v_rotated[1]
+					self.hand_pose.position.z = v_rotated[2]
 					self.tf_wrist.orientation = self.q_wrist_tsm
 					# self.tf_wrist.orientation = kinematic.q_multiply(robot_init.orientation, self.q_wrist_tsm)
+					self.hand_pose.orientation = self.q_wrist_tsm
+			
+			
+    def hand_pos_calculate(self, v=hand_link):
+				"""
+				NOTE: Use this when you calibrate hand in HORIZONTAL pose
+				Calculate current hand_pose
+				@param v=hand_link default
+				"""
+				global _HAND_POS_INIT
+				v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+				# print "calibration:", self.calibration_flag, "self.q_wrist_tsm_init:", self.q_wrist_tsm_init
+				print "v_rotated_init:", v_rotated
+				if _HAND_POS_INIT == False:
+					print "Cont?"
+					dummy_input = raw_input()
+					_HAND_POS_INIT = True
+				
+				# Calculate pose
+				self.hand_pose.position.x = v_rotated[0]
+				self.hand_pose.position.y = v_rotated[1]
+				self.hand_pose.position.z = v_rotated[2]
+				self.hand_pose.orientation = self.q_wrist_tsm
 	    
 
