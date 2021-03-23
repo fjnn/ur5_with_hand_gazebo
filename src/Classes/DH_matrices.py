@@ -1,10 +1,11 @@
 import sys
 
-from math import pi
-from math import cos
-from math import sin
+from math import pi, cos, sin, sqrt
 import numpy as np
 from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Point
+from geometry_msgs.msg import Quaternion
+
 
 from tf.transformations import quaternion_from_matrix as m2q
 from tf.transformations import quaternion_matrix as q2m
@@ -79,10 +80,16 @@ class DHmatrices:
 	def htm_to_quat(htm):
 		quat = m2q(htm) # np.array([x, y, z, w])
 		return quat
+
+	@staticmethod
+	def quat_to_htm(quat):
+		htm = q2m(quat) # np.array([x, y, z, w])
+		return htm
 		
 	@staticmethod
 	def htm_to_vec(htm):
-		vec = htm[:3, 3:4]
+		# vec = htm[:3, 3:4]
+		vec = htm[:3, 3]
 		return vec
 		
 	@staticmethod
@@ -92,5 +99,41 @@ class DHmatrices:
 		pose_link = np.array([pose.position.x, pose.position.y, pose.position.z])
 		pose_rotm[:3, 3] = pose_link
 		return pose_rotm
+
+	@staticmethod
+	def to_numpy(msg):
+		if type(msg) == Point:
+			result = np.array([msg.x, msg.y, msg.z])
+		elif type(msg) == Quaternion:
+			result = np.array([msg.x, msg.y, msg.z, msg.w])
+		elif type(msg) == Pose:
+			# basically pose_to_htm but I don't want to change it from static method
+			pose_quat = np.array([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+			pose_rotm = q2m(pose_quat) # actually 4x4 matrix created (a htm)
+			pose_link = np.array([msg.position.x, msg.position.y, msg.position.z])
+			pose_rotm[:3, 3] = pose_link
+			result = pose_rotm
+		else:
+			print "unknown type"
+			result = None
+		return result
+		
+	@staticmethod
+	def ee_goal_calculate(hand_pose, wrist_pose, r = 0.07):
+		'''
+		Given hand_pose {Pose()}, parametrizes {z} such that it will be on UR5's workspace sphere.
+		@returns ee_goal {np.array(4,4)} - then this will be used as Tee for the robot
+		
+		Sphere: (x-a)^2 + (y-b)^2 + (z-c)^2 = r2
+						(a, b, c): Origin of the sphere -> Wrist origin
+						(x, y, z): EE coordinates -> /tool0 position
+						r: radius of the workspace
+		'''
+		ee_goal_htm = DHmatrices.to_numpy(hand_pose)
+		wrist_htm = DHmatrices.to_numpy(wrist_pose)
+		x, y, z = DHmatrices.htm_to_vec(ee_goal_htm)
+		a, b, c = DHmatrices.htm_to_vec(wrist_htm)
+		param_z = sqrt(r**2 - (x-a)**2 - (y-b)**2) + c
+		return param_z
 		
 
