@@ -46,10 +46,9 @@ class MapperClass:
 		self.arm_group.set_named_target("vertical")
 		plan_arm = self.arm_group.go()  
 		
-		moveit_commander.roscpp_shutdown()
-		rospy.signal_shutdown("Done")
-		
-		
+		self.start_time = rospy.Time.now()
+		print "Mapper initialized"
+				
 		# return arm_group, robot
 		
 	def start_node(self, rate):
@@ -60,10 +59,16 @@ class MapperClass:
 		self.r = rospy.Rate(rate)
 		
 		
-	# def init_subscribers_and_publishers(self):
-		# pass
+	def init_subscribers_and_publishers(self):
+		self.pub = rospy.Publisher('/ur5_joint_position_cmd', JointState, queue_size=1)
+		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.callback_hand_pose)
+		self.sub_human_wrist_joints = rospy.Subscriber('/wrist_joints', Vector3, self.callback_wrist_joints)  # Check its publisher
+		print "Mapper subs and pubs initialized"
 		
-	# def callback_hand_pose(self, msg):
+	def callback_hand_pose(self, msg):
+		pass
+		
+	# def callback_wrist_joints(self, msg):
 		# pass
 	
 	# def jsm_calculate(self, wrist_joints):
@@ -75,12 +80,13 @@ class MapperClass:
 	# def adaptive_tsm_calculate(self, jsm_pose, tsm_pose, speed_gain):
 		# pass
 		
-	# def update(self):
-		# '''
-		# Call this function in every step
-		# '''
-		# self.curr_time = rospy.Time.now()
-		# print "Elapsed time:", self.curr_time - self.prev_time
+	def update(self):
+		'''
+		Call this function in every step
+		'''
+		self.curr_time = rospy.Time.now()
+		elapsed_time = (self.curr_time - self.start_time)/1000000.0
+		print "Elapsed time:{}".format(elapsed_time)
 
 
 
