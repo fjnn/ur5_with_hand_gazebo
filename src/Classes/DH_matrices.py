@@ -99,7 +99,16 @@ class DHmatrices:
 		pose_link = np.array([pose.position.x, pose.position.y, pose.position.z])
 		pose_rotm[:3, 3] = pose_link
 		return pose_rotm
-
+		
+	@staticmethod
+	def htm_to_pose(htm):
+		"Not ready yet. Test purpose only"
+		htm_quat = m2q(htm)
+		pose_quat = Quaternion(htm_quat[0], htm_quat[1], htm_quat[2], htm_quat[3])
+		pose_point = Point(htm[0,3], htm[1,3], htm[2,3])
+		pose = Pose(pose_point, pose_quat)
+		return pose
+		
 	@staticmethod
 	def to_numpy(msg):
 		if type(msg) == Point:
