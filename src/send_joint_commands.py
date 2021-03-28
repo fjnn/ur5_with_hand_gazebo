@@ -24,7 +24,7 @@ JOINT_NAMES = ['elbow_joint', 'shoulder_lift_joint', 'shoulder_pan_joint',
 # home = [0.0, -1.6571, -1.5880, 0.0, 1.5880, -0.05]
 home = [pi/2, -pi/2, 0.0, 0.0, 0.0, 0.0]
 pivot = [0.2649, -1.38946, -2.47837, -0.802851, 1.57, 0.266337]
-current_joint_values = [0.0, -1.57, -1.7261, -1.57, 1.57, 0.0]
+current_joint_values = [pi/2, -pi/2, 0.0,0.0, 0.0, 0.0]
 
 client = None
 
