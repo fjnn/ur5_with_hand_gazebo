@@ -2,7 +2,6 @@
 
 """
 This is a mapper class between human and robot wrist motions.
-TODO: Seperate MoveIT robot class.
 """
 
 import sys
@@ -77,7 +76,7 @@ class MapperClass:
 		
 		
 	def init_subscribers_and_publishers(self):
-		self.pub = rospy.Publisher('/Tee_pose', Pose, queue_size=1)
+		self.pub = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
 		# self.pub = rospy.Publisher('/tsm_pose', Pose, queue_size=1)
 		# self.pub = rospy.Publisher('/jsm_pose', Pose, queue_size=1)
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.callback_hand_pose)
