@@ -68,6 +68,7 @@ class IMUsubscriber:
 
     def init_subscribers_and_publishers(self):
         self.pub = rospy.Publisher('/human_joint_states', JointState, queue_size=1)
+        self.pub_wrist_angles = rospy.Publisher('/wrist_angles', Vector3, queue_size=1)
         self.pub_hand_pose = rospy.Publisher('/hand_pose', Pose, queue_size=1)
 #        self.pub_test = rospy.Publisher('/my_test_msg', test_msg, queue_size=10)
 #        self.pub_p_hand = rospy.Publisher('/p_hand', Vector3, queue_size=1)
@@ -91,6 +92,10 @@ class IMUsubscriber:
 					self.hand_pos_calculate()
 					self.pub.publish(self.human_joint_imu)
 					self.pub_hand_pose.publish(self.hand_pose)
+					
+					# Clean this part later
+					wrist_angles_pose = Vector3(self.wrist_angles[0], self.wrist_angles[1], self.wrist_angles[2])
+					self.pub_wrist_angles.publish(wrist_angles_pose)
 					# TODO: here needs update p_hand = hand_link*q_wrist
 					# self.p_hand.x = np.degrees(self.human_joint_imu.position[6])  # pitch
 					# self.p_hand.y = np.degrees(self.human_joint_imu.position[7])  # yaw
