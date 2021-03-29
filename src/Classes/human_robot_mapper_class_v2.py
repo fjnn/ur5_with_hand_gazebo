@@ -87,6 +87,12 @@ class MapperClass:
 		Subscribes wrist_joints {Vector3()} for JSM
 		'''
 		self.human_wrist_joints = msg
+		
+	def sub_joints_openrave(self):
+		'''
+		Subscribes the joint states calculated by IKsolver node
+		'''
+		self.joint_states_openrave = msg
 	
 	# def jsm_calculate(self, wrist_joints):
 		# pass

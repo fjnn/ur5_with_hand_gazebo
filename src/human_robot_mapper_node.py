@@ -6,6 +6,7 @@ from geometry_msgs.msg import Vector3
 
 def main():
 	mapper = MapperClass(START_NODE=True, rate=30)
+	mapper.init_subscribers_and_publishers()
 	start_time = rospy.Time.now()
 	while not rospy.is_shutdown():
 		current_time = rospy.Time.now()
