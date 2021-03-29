@@ -57,7 +57,9 @@ class IMUsubscriber:
 
         self.hand_pose = Pose()
         self.wrist_angles = np.array([0.0, 0.0, 0.0])
-        self.human_joint_imu = JointState()
+        ## this is a bit unnecessary now after wrist_angles_pose
+        ## But I want to keep it for consistency to my full arm IMU class
+        self.human_joint_imu = JointState() 
         self.human_joint_imu.name = ['left_wrist_0', 'left_wrist_1', 'left_wrist_2']
         self.human_joint_imu.position = [0.0, 0.0, 0.0]
         self.calibration_flag = 0
