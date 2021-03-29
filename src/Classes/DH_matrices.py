@@ -106,7 +106,6 @@ class DHmatrices:
 		pose_quat = Quaternion(htm_quat[0], htm_quat[1], htm_quat[2], htm_quat[3])
 		pose_point = Point(htm[0,3], htm[1,3], htm[2,3])
 		pose = Pose(pose_point, pose_quat)
-		print "pose out:", pose
 		return pose
 		
 	@staticmethod
