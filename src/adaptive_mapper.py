@@ -223,6 +223,26 @@ def main():
 				# z_val = float(raw_input())
 				# cartesian_control_with_IMU(arm_group, robot_init, GOAL_POSE, x_val, y_val, z_val)
 				# task_space_control(arm_group, x_val, y_val, z_val)
+
+				# print "Press Enter for jsm"
+				# dummy_input = raw_input()
+				# angle_x = float("{:.2f}".format(IMU.human_joint_imu.position[0]))
+				# angle_y = float("{:.2f}".format(IMU.human_joint_imu.position[1]))
+				# angle_z = float("{:.2f}".format(IMU.human_joint_imu.position[2]))
+				# jsm_goal_pose = plan_joint_space_control(arm_group, wrist_1=angle_x, wrist_2=angle_y, wrist_3=angle_z)
+				# print "jsm_goal:", jsm_goal_pose
+				
+				# print "Press Enter for tsm"
+				# dummy_input = raw_input()
+				# IMU.hand_pos_calculate()
+				# hand_pose = IMU.tf_wrist
+				# tsm_goal_pose = plan_task_space_control(arm_group, robot_init, hand_pose)
+				# print "tsm_goal:", tsm_goal_pose
+
+				# print "Press Enter for adaptive tsm"
+				# dummy_input = raw_input()
+				# gyro = IMU.gyro_wrist
+				# adaptive_control(arm_group, robot_init, jsm_goal_pose, tsm_goal_pose, gyro)
 			IMU.update()
 			IMU.r.sleep()
 			
