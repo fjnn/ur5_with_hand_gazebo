@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 
 import rospy
-from Classes.human_robot_mapper_class import MapperClass
+from Classes.human_robot_mapper_class_v2 import MapperClass
 from geometry_msgs.msg import Vector3
 
 def main():
 	mapper = MapperClass(START_NODE=True, rate=30)
+	start_time = rospy.Time.now()
 	while not rospy.is_shutdown():
-		mapper.update()
+		current_time = rospy.Time.now()
+		elapsed_time = current_time-start_time
+		# print "Elapsed time iksolver:", elapsed_time
+		mapper.update(elapsed_time)
 		mapper.r.sleep()
 
 if __name__ == "__main__": main ()
