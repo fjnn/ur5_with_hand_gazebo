@@ -50,7 +50,7 @@ class MapperClass:
 
 		
 		self.Tee_pose = Pose()
-		self.Twrist_pose = Pose()
+		self.Twrist_pose = Pose()  # this looks like wrong calculated
 		self.joint_states_openrave = JointState()
 		
 		self.jpose = Pose()
