@@ -16,15 +16,16 @@ test_gain = Int8()
 def callback_pose(msg):
 	global test_pose
 	test_pose = msg
-	print "test_pose:", test_pose
+	# print "test_pose:", test_pose
 	
 def callback_gain(msg):
 	global test_gain
 	test_gain = msg
-	print "test_gain:", test_gain
+	# print "test_gain:", test_gain
 	
 
 if __name__ == "__main__":
+	global test_pose, test_gain
 	try:
 		rospy.init_node('data_logger_node')
 		start_time = rospy.get_time()

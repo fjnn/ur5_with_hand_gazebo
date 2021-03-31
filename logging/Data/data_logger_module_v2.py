@@ -36,7 +36,7 @@ def enable_logging():
     global _logging_enabled
     _logging_enabled = True
     _DATA_LOGGER = DataLogger()  # thread here
-    # _DATA_LOGGER.start()
+    _DATA_LOGGER.start() ## start thread not start() module of your logger.
     print "enable_logging"
 
 
@@ -57,6 +57,7 @@ class DataLogger(threading.Thread):
         self.fp = open(self.filename, 'w')
         self.writer = csv.writer(self.fp, lineterminator='\n')
         # write the header of the CSV file (the labels of each field/feature)
+        print "labels:", data.DATA_LABELS
         self.writer.writerow(data.DATA_LABELS)
         self.running = True
 
@@ -64,6 +65,7 @@ class DataLogger(threading.Thread):
         while self.running:
             try:
                 row = _DATA.get(timeout=1)
+                print "run:", row
                 self.writer.writerow(row)
             except Empty:
                 continue
