@@ -17,7 +17,7 @@ from datetime import datetime
 
 
 # OUTPUT_FOLDER = "../Output"  # take it as a rosparam
-OUTPUT_FOLDER = "/home/gizem/catkin_ws/src/my_data_logger_pkg/Output"  # take it as a rosparam
+OUTPUT_FOLDER = "/home/gizem/catkin_ws/src/ur5_with_hand_gazebo/logging/Output"  # take it as a rosparam
 OUTPUT_FILENAME_PREFIX = "gizem_test"
 
 ID_GLOBAL_TIME = 'global_time'

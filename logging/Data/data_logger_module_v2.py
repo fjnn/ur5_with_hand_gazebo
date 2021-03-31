@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -20,11 +20,13 @@ _logging_enabled = False
 
 
 # Functions
-def log_metrics(te, tg, pitch, roll, yaw, mark):
+# def log_metrics(time, tee, human_wrist_angles, hand_pose, gain):
+def log_metrics(time, test_pose, gain):
     if _DATA_LOGGER.running:
-        new_data = [tg, te, pitch, roll, yaw, mark]
+        test_pose_arr = [[test_pose.position.x, test_pose.position.y, test_pose.position.z], [test_pose.orientation.x, test_pose.orientation.y, test_pose.orientation.z, test_pose.orientation.w]]
+        new_data = [time, test_pose.position.x, test_pose.position.y, test_pose.position.z, test_pose.orientation.x, test_pose.orientation.y, test_pose.orientation.z, test_pose.orientation.w, gain]
         _DATA.put(new_data)
-        print new_data
+        # print new_data
     else:
         return
 
@@ -34,7 +36,7 @@ def enable_logging():
     global _logging_enabled
     _logging_enabled = True
     _DATA_LOGGER = DataLogger()  # thread here
-    _DATA_LOGGER.start()
+    # _DATA_LOGGER.start()
     print "enable_logging"
 
 
@@ -44,6 +46,7 @@ def disable_logging():
         if _DATA_LOGGER.running:
             _DATA_LOGGER.stop()
         _logging_enabled = False
+        print "disable_logging"
 
 
 class DataLogger(threading.Thread):
