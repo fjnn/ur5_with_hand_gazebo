@@ -20,7 +20,7 @@ def callback_pose(msg):
 	
 def callback_gain(msg):
 	global test_gain
-	test_gain = msg
+	test_gain = msg.data
 	# print "test_gain:", test_gain
 	
 
