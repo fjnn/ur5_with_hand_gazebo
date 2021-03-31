@@ -67,6 +67,7 @@ class GazeboLink(object):
 
 	def callback(self, data):
 		self.link_pose = data.pose.pose
+		print "here"
 
         # for robot_name in self._gazebo_models_list:
             # # Retrieve the corresponding index

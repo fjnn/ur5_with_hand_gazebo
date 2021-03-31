@@ -7,30 +7,31 @@ import yaml
 import os
 from geometry_msgs.msg import Pose
 from get_model_gazebo_pose import GazeboModel
+from get_link_gazebo_pose import GazeboLinks
 
 class ModelPoseStore():
-    def __init__(self, model_to_track_list):
+    def __init__(self, model_to_track_list, link_name):
 
         # This are the models that we will generate information about.
         self.gz_model_obj = GazeboModel(model_to_track_list)
+        self.gz_link_obj = GazeboLink(link_name)
         
         
-    def get_pose_of_model(self, model_name):
+    def get_pose_of_model(self, model_name, link_name):
         """
         Retrieves the position of an object from the world
         """
-        pose_now = self.gz_model_obj.get_model_pose(model_name)
+        pose_model = self.gz_model_obj.get_model_pose(model_name)
+        pose_link = self.gz_link_obj.get_link_pose(link_name)
         
         return pose_now
         
-    def store_model_poses_for_duration(self, model_name, duration=1.0, frequency_save_pose=1.0, file_to_store="poses.yaml"):
+    def store_model_poses_for_duration(self, model_name, duration=1.0, frequency_save_pose=0.2, file_to_store="poses.yaml"):
         """
         We store in the Given File Name the poses of the given model, whihc has to be inside the init model list
         inside a Yaml file
         """
-        
-        
-        
+
         rate = rospy.Rate(frequency_save_pose)
         
         init_time_stamp = rospy.get_time()
@@ -76,7 +77,8 @@ class ModelPoseStore():
 if __name__ == '__main__':
     rospy.init_node('store_model_poses_node', anonymous=True, log_level=rospy.DEBUG)
     
-    model_to_save_poses = "big_circle_path"
+    # model_to_save_poses = "big_circle_path"
+    model_to_save_poses = "wrist_3_link"
     model_to_track_list = [model_to_save_poses]
     model_pose_store_obj = ModelPoseStore(model_to_track_list)
     
@@ -90,7 +92,8 @@ if __name__ == '__main__':
         os.makedirs(pose_files_dir)
     
     
-    pose_file_name = model_to_save_poses+str(time.time())+".yaml"
+    # pose_file_name = model_to_save_poses+str(time.time())+".yaml"
+    pose_file_name = "test_recording"+".yaml"
     pose_file_path = os.path.join(pose_files_dir, pose_file_name)
     
     
