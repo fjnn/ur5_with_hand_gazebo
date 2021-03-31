@@ -20,27 +20,38 @@ from datetime import datetime
 OUTPUT_FOLDER = "/home/gizem/catkin_ws/src/ur5_with_hand_gazebo/logging/Output"  # take it as a rosparam
 OUTPUT_FILENAME_PREFIX = "gizem_test"
 
-ID_GLOBAL_TIME = 'global_time'
-ID_ELAPSED_TIME = 'elapsed_time'
-ID_PITCH = 'human_pitch'
-ID_ROLL = 'human_roll'
-ID_YAW = 'human_yaw'
-ID_MARK = 'mark'
 
-DATA_LABELS = (ID_GLOBAL_TIME, ID_ELAPSED_TIME, ID_PITCH, ID_ROLL, ID_YAW, ID_MARK)
+ID_ELAPSED_TIME = 'elapsed_time'
+ID_TEE_POS_X = 'tool_pos_x'
+ID_TEE_POS_Y = 'tool_pos_y'
+ID_TEE_POS_Z = 'tool_pos_z'
+ID_TEE_ORI_X = 'tool_ori_x'
+ID_TEE_ORI_Y = 'tool_ori_y'
+ID_TEE_ORI_Z = 'tool_ori_z'
+ID_TEE_ORI_W = 'tool_ori_w'
+# ID_PITCH = 'human_pitch'
+# ID_ROLL = 'human_roll'
+# ID_YAW = 'human_yaw'
+ID_GAIN = 'adaptive_gain'
+
+DATA_LABELS = (ID_ELAPSED_TIME, ID_TEE_POS_X, ID_TEE_POS_Y, ID_TEE_POS_Z, ID_TEE_ORI_X, ID_TEE_ORI_Y, ID_TEE_ORI_Z, ID_TEE_ORI_W, ID_GAIN)
 DATA_INDICES = {
-        ID_GLOBAL_TIME: 0,
-        ID_ELAPSED_TIME: 1,
-        ID_PITCH: 2,
-        ID_ROLL: 3,
-        ID_YAW: 4,
-        ID_MARK: 5  # now using for aiding but can be used as division between motions
-        }
+								ID_ELAPSED_TIME: 0,
+								ID_TEE_POS_X: 1,
+								ID_TEE_POS_Y: 2,
+								ID_TEE_POS_Z: 3,
+								ID_TEE_ORI_X: 4,
+								ID_TEE_ORI_Y: 5,
+								ID_TEE_ORI_Z: 6,
+								ID_TEE_ORI_W: 7,
+								ID_GAIN: 8
+								}
 
 
 def get_new_filename():
-    postfix = datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + ".csv"
-    filename = OUTPUT_FILENAME_PREFIX + "_" + postfix
+    # postfix = datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + ".csv"
+    # filename = OUTPUT_FILENAME_PREFIX + "_" + postfix
+    filename = "gizem_test.csv"
     # if folder doesn't exist, create it
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
