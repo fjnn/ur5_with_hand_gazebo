@@ -65,7 +65,7 @@ class DataLogger(threading.Thread):
         while self.running:
             try:
                 row = _DATA.get(timeout=1)
-                print "run:", row
+                print "data:", row
                 self.writer.writerow(row)
             except Empty:
                 continue

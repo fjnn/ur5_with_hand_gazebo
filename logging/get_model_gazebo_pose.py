@@ -115,7 +115,7 @@ class GazeboModel(object):
 
 def listener():
     rospy.init_node('listener', anonymous=True)
-    gazebo_models_list = ['demo_spam1', 'demo_table1']
+    gazebo_models_list = ['/odom_wrist_1_link']
     gz_model = GazeboModel(gazebo_models_list)
     rate = rospy.Rate(1)  # 10hz
     while not rospy.is_shutdown():
