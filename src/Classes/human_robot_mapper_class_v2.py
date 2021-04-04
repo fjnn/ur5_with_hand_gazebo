@@ -37,10 +37,12 @@ _GYRO_SCALE = 2000 # deg/sec
 # # _GYRO_SCALE = 34.9066 # rad/sec
 
 class MapperClass:
-	def __init__(self, START_NODE=False, rate=100):
+	def __init__(self, START_NODE=False, rate=100, mode=0):
 		'''
 		Initializes a mapper class with 3 modes: JSM, TSM, aTSM
+		@params mode=0:JSM, 1:TSM, 2:aTSM   (default = 0)
 		'''
+		self.mode = mode
 
 		self.human_wrist_joints = Vector3()
 		self.hand_pose = Pose()
@@ -71,14 +73,14 @@ class MapperClass:
 
 
 	def init_subscribers_and_publishers(self):
-		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.sub_hand_pose)
-		self.sub_human_wrist_joints = rospy.Subscriber('/wrist_joints', Vector3, self.sub_wrist_joints)  # Check its publisher
-		self.sub_gyro = rospy.Subscriber('/gyro_wrist', Vector3, self.sub_wrist_joints)  # Check its publisher
+		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.sub_hand_pose) # Pub: IMUsubscriber
+		self.sub_human_wrist_joints = rospy.Subscriber('/wrist_joints', Vector3, self.sub_wrist_joints)  # Pub: IMUsubscriber
+		self.sub_gyro = rospy.Subscriber('/gyro_wrist', Vector3, self.sub_wrist_joints)  # Pub: IMUsubscriber
 
-		self.pub = rospy.Publisher('/Tee_goal_pose', Pose, queue_size=1)
-		self.sub_joints_openrave = rospy.Subscriber('/joint_states_openrave', Vector3, self.sub_joints_openrave)  # Check its publisher
-		self.sub_Twrist_pose = rospy.Subscriber('/Twrist_pose', Pose, self.sub_Twrist_pose)  # Check its publisher
-		self.sub_Tee_pose = rospy.Subscriber('/Tee_calculated', Pose, self.sub_Tee_pose)  # Check its publisher
+		self.pub_tee_mapper_goal_pose = rospy.Publisher('/Tee_mapper_goal_pose', Pose, queue_size=1)  # Sub: IKsolver
+		self.sub_joints_openrave = rospy.Subscriber('/joint_states_openrave', Vector3, self.sub_joints_openrave)  # Pub: IKsolver
+		self.sub_Twrist_pose = rospy.Subscriber('/Twrist_pose', Pose, self.sub_Twrist_pose)  # Pub: IKsolver
+		self.sub_Tee_pose = rospy.Subscriber('/Tee_calculated', Pose, self.sub_Tee_pose)  # Pub: IKsolver
 
 		self.pub_jpose = rospy.Publisher('/jpose', Pose, queue_size=1)
 		self.pub_tpose = rospy.Publisher('/tpose', Pose, queue_size=1)
@@ -87,10 +89,14 @@ class MapperClass:
 		self.pub_jsm_joints = rospy.Publisher('/jsm_joints', JointState, queue_size=1)
 		self.pub_tsm_joints = rospy.Publisher('/tsm_joints', JointState, queue_size=1)
 		self.pub_atsm_joints = rospy.Publisher('/atsm_joints', JointState, queue_size=1)
+		self.pub_mapper_joints = rospy.Publisher('/mapper_joints', JointState, queue_size=1)
 
 		print "Mapper subs and pubs initialized"
 
 	def sub_Tee_pose(self, msg):
+		'''
+		Tee_pose is from IKsolver. Not to be used, debug purpose only. /Tee_calculated from OpenRave
+		'''
 		self.Tee_pose = msg
 
 	def sub_gyro(self, msg):
@@ -140,6 +146,7 @@ class MapperClass:
 			@param **kwargs: [joint_x, value] list
 			UR DH: https://www.universal-robots.com/articles/ur/application-installation/dh-parameters-for-calculations-of-kinematics-and-dynamics/
 			TODO: double quaternions later. HTM now
+			NOTE: Not for JSM. JSM sends human wrist joints directly. This is for aTSM calculation
 			"""
 			for joint,theta in kwargs.items():
 				joint_int = MapperClass.joint_names_to_numbers(joint)
@@ -173,22 +180,33 @@ class MapperClass:
 
 	def jsm_send_joint_commands(self):
 		'''
-		Send jpose to IKsolver, publish /jsm_joints for UR_driver
-		jpose ready
+		No need to Send jpose to IKsolver, publish /mapper_joints for UR_driver
 		'''
-		pass
+		self.jsm_joints[4] = self.human_wrist_joints.x
+		self.jsm_joints[5] = self.human_wrist_joints.y
+		self.jsm_joints[6] = self.human_wrist_joints.z
+		self.pub_mapper_joints(self.jsm_joints)
+		# self.pub_tee_mapper_goal_pose.publish(self.jsm_pose) --> This is unnecessary. No IK is needed for JSM
 
-	def jsm_send_joint_commands(self):
+	def tsm_send_joint_commands(self):
 		'''
 		Send tpose to IKsolver, publish /tsm_joints for UR_driver
-		tpose ready
 		'''
-		pass
+		self.tsm_pose = self.tpose
+		self.pub_tee_mapper_goal_pose.publish(self.tsm_pose)
+
+	def atsm_send_joint_commands(self):
+		'''
+		Send tpose to IKsolver, publish /tsm_joints for UR_driver
+		'''
+		self.tsm_pose = self.apose
+		self.pub_tee_mapper_goal_pose.publish(self.atsm_pose)
 
 
 	def adaptive_tsm_calculate(self, jsm_pose, tsm_pose, speed_gain):
 		'''
 		Calculate apose based on jpose,tpose and speed_gain
+		jpose: Ready, tpose: Ready
 		'''
 		self.apose.position.x = self.Tee_pose.position.x + self.jpose.position.x + ((self.tpose.position.x - self.jpose.position.x) * self.speed_gain.x)
 		self.apose.position.y = self.Tee_pose.position.y + self.jpose.position.y + ((self.tpose.position.y - self.jpose.position.y) * self.speed_gain.y)
@@ -215,11 +233,20 @@ class MapperClass:
 
 		# A-TSM
 		self.pub_apose.publish(self.apose)
-		# a_tsm_pose = self.adaptive_tsm_calculate(self, jsm_pose, tsm_pose, speed_gain)
 
-		# self.pub.publish(self.a_tsm_pose)
-		# self.pub.publish(self.tsm_pose)
-		# self.pub.publish(self.jsm_pose)
+		# Send desired Tee_goal based on selected mode. 
+		# IKsolver will publish /joint_states_openrave based on this Tee goal pose
+		# Calculated IKsolver joints are published as mapper joints
+		if self.mode == 0:
+			self.jsm_send_joint_commands()
+		elif self.mode == 1:
+			self.tsm_send_joint_commands()
+		elif self.mode == 2:
+			self.atsm_send_joint_commands()
+			
+		else:
+			rospy.signal_shutdown("Wrong selection of human-robot mapper mode")
+
 
 	@staticmethod
 	def joint_names_to_numbers(argument):
