@@ -31,7 +31,7 @@
 				<frameName>map</frameName>
 				<!--<bodyName>${prefix}tool0</bodyName>-->
 				<bodyName>${prefix}wrist_3_link</bodyName>
-				<topicName>odom_tool0</topicName>
+				<topicName>odom_wrist_3_link</topicName>
 				<updateRate>30.0</updateRate>
 			</plugin>
 		</gazebo>

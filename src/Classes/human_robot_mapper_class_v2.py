@@ -21,15 +21,12 @@ from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
 
+import tf_conversions
+import tf2_ros
+
 sys.path.append("/home/gizem/catkin_ws/src/ur5_with_hand_gazebo/src/Classes")
 from DH_matrices import DHmatrices
 import Kinematics_with_Quaternions as kinematic
-
-## Global variable if Gazebo odom is used
-# EE_POSE = Odometry()
-# WRIST_POSE = Odometry()
-# GOAL_POSE = Pose()
-# t = TransformStamped()
 
 DHmatrices = DHmatrices()
 
@@ -63,6 +60,8 @@ class MapperClass:
 		self.tsm_joints = JointState()
 		self.atsm_joints = JointState()
 
+		self.tool0_corrected = Pose()
+
 		if START_NODE == True:
 			'''
 			NOTE: only one node should be called at a time.
@@ -91,7 +90,11 @@ class MapperClass:
 		self.pub_atsm_joints = rospy.Publisher('/atsm_joints', JointState, queue_size=1)
 		self.pub_mapper_joints = rospy.Publisher('/mapper_joints', JointState, queue_size=1)
 
+		# self.sub_odom_tool0 = rospy.Subscriber('/odom_wrist_3_link', Odometry, self.correct_tool0)
+		# self.pub_tool0_corrected = rospy.Publisher('/tool0_corrected', Pose, queue_size=1)
+
 		print "Mapper subs and pubs initialized"
+
 
 	def sub_Tee_pose(self, msg):
 		'''
@@ -213,6 +216,17 @@ class MapperClass:
 		self.apose.position.z = self.Tee_pose.position.z + self.jpose.position.z + ((self.tpose.position.z - self.jpose.position.z) * self.speed_gain.z)
 		self.apose.orientation = self.Tee_pose.orientation
 
+
+	def correct_tool0(self, msg):
+		'''
+		Gazebo odometry publisher cannot be linked to tool0 but it connects to wrist_3_link.
+		The transformation from wrist_3_link to tool 0 is fixed
+			- Translation: [0.000, 0.082, 0.000]
+			- Rotation: in Quaternion [-0.707, 0.000, 0.000, 0.707]	
+		This is method subcribes the /odom_wrist_3_link topic and publishes /tool0_corrected
+		NOTE: For now I use TF2 node -> tool0_listener
+		'''
+		pass
 
 
 	def update(self, elapsed_time):
