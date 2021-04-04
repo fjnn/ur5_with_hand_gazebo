@@ -87,7 +87,7 @@ def main():
         dummy_input = raw_input()
         move_home()
 
-        sub_tf_listener = rospy.Subscriber('/test_joints', JointState, cb_joint_goal)
+        sub_tf_listener = rospy.Subscriber('/mapper_joints', JointState, cb_joint_goal)
 
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
