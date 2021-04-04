@@ -24,7 +24,7 @@ JOINT_NAMES = ['elbow_joint', 'shoulder_lift_joint', 'shoulder_pan_joint',
 # home = [0.0, -1.6571, -1.5880, 0.0, 1.5880, -0.05]
 home = [pi/2, -pi/2, 0.0, 0.0, 0.0, 0.0]
 pivot = [0.2649, -1.38946, -2.47837, -0.802851, 1.57, 0.266337]
-current_joint_values = [pi/2, -pi/2, 0.0,0.0, 0.0, 0.0]
+current_joint_values = [pi/2, -pi/2, 0.0, 0.0, 0.0, 0.0]
 
 client = None
 
@@ -91,7 +91,7 @@ def main():
 
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            current_joint_values[3] = desired_URwrist_joints.x
+            current_joint_values[3] = desired_URwrist_joints.x + pi
             current_joint_values[4] = desired_URwrist_joints.y
             current_joint_values[5] = desired_URwrist_joints.z
             print current_joint_values
