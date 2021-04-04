@@ -14,14 +14,19 @@ import rospy
 
 import math
 import tf2_ros
-import geometry_msgs.msg
+from geometry_msgs.msg import Pose
+
+tool0_pose = Pose()
 
 
 if __name__ == '__main__':
+    pub = rospy.Publisher('/tool0_corrected', Pose, queue_size=10)
     rospy.init_node('tf2_tool0_listener')
     tfBuffer = tf2_ros.Buffer()
     listener = tf2_ros.TransformListener(tfBuffer)
     rate = rospy.Rate(10.0)
+    print "Publishing the corrected tool0 pose w.r.t the /world frame"
+
 
     while not rospy.is_shutdown():
         try:
@@ -30,9 +35,11 @@ if __name__ == '__main__':
             rate.sleep()
             continue
 
-        print "Translation:", trans.transform.translation
-        print "Rotation:", trans.transform.rotation
-        msg = geometry_msgs.msg.Twist()
+        # print "Translation:", trans.transform.translation
+        # print "Rotation:", trans.transform.rotation
+        tool0_pose.position = trans.transform.translation
+        tool0_pose.orientation = trans.transform.rotation
+        pub.publish(tool0_pose)
 
         rate.sleep()
 
