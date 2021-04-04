@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import sys, time
 from Classes.human_robot_mapper_class_v2 import MapperClass
 from geometry_msgs.msg import Vector3
 
@@ -16,4 +17,3 @@ def main():
 		mapper.r.sleep()
 
 if __name__ == "__main__": main ()
-	
