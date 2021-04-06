@@ -65,17 +65,16 @@
     </model>
     
 		<model name='big_circle_path'>
-      <pose frame=''>0 0.78 0.78 1.57 0 0</pose>
+      <pose frame=''>0.0 0.78 0.78 1.57 0 0</pose>
       <static>true</static>
       <link name='link'>
         <inertial>
           <mass>1</mass>
         </inertial>
         <collision name='collision'>
-					<pose frame=''>-0.115 0 0 0 -0 0</pose>
           <geometry>
             <mesh>
-              <uri>model://bigCircle/BigCircle.stl</uri>
+              <uri>model://izel/BigCircle.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -94,10 +93,9 @@
           </surface>
         </collision>
         <visual name='visual'>
-					<pose frame=''>-0.115 0 0 0 -0 0</pose>
           <geometry>
             <mesh>
-              <uri>model://bigCircle/BigCircle.stl</uri>
+              <uri>model://izel/BigCircle.stl</uri>
               <scale>0.001 0.001 0.001</scale>
             </mesh>
           </geometry>
@@ -116,7 +114,6 @@
           <mass>1</mass>
         </inertial>
         <collision name='collision'>
-					<pose frame=''>-0.1 0.115 0 0 -0 0</pose>
           <geometry>
             <mesh>
               <uri>model://bigTriangle/BigTriangle.stl</uri>
@@ -138,7 +135,6 @@
           </surface>
         </collision>
         <visual name='visual'>
-					<pose frame=''>-0.1 0.115 0 0 0 0</pose>
           <geometry>
             <mesh>
               <uri>model://bigTriangle/BigTriangle.stl</uri>
