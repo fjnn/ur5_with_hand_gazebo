@@ -22,7 +22,7 @@ JOINT_NAMES = ['elbow_joint', 'shoulder_lift_joint', 'shoulder_pan_joint',
                'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint'] # gazebo model has this interesting order of joints
                
 # home = [0.0, -1.6571, -1.5880, 0.0, 1.5880, -0.05]
-home = [pi/2, -pi/2, 0.0, 0.0, 0.0, 0.0]
+home = [pi/2, -pi/2, 0.0, pi, -pi/2, 0.0]
 pivot = [0.2649, -1.38946, -2.47837, -0.802851, 1.57, 0.266337]
 current_joint_values = [pi/2, -pi/2, 0.0, 0.0, 0.0, 0.0]
 
