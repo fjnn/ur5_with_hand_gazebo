@@ -68,9 +68,10 @@ def move_home():
 
         
 def cb_joint_goal(msg):
-    desired_URwrist_joints.x = msg.position[3]
-    desired_URwrist_joints.y = msg.position[4]
-    desired_URwrist_joints.z = msg.position[5]
+    print "msg:", msg.position
+    desired_URwrist_joints.x = msg.position[3] 
+    desired_URwrist_joints.y = msg.position[4] 
+    desired_URwrist_joints.z = msg.position[5] 
     print "desired_URwrist_joints", desired_URwrist_joints
 
 def main():
@@ -86,14 +87,15 @@ def main():
         print "Press Enter to proceed:"
         dummy_input = raw_input()
         move_home()
+        dummy_input = raw_input("home?")
 
         sub_tf_listener = rospy.Subscriber('/mapper_joints', JointState, cb_joint_goal)
 
-        rate = rospy.Rate(10)
+        rate = rospy.Rate(100)
         while not rospy.is_shutdown():
-            current_joint_values[3] = desired_URwrist_joints.x + pi
-            current_joint_values[4] = desired_URwrist_joints.y
-            current_joint_values[5] = desired_URwrist_joints.z
+            current_joint_values[3] = desired_URwrist_joints.x + home[3]
+            current_joint_values[4] = desired_URwrist_joints.y + home[4]
+            current_joint_values[5] = desired_URwrist_joints.z + home[5]
             print current_joint_values
             move_single_joint(current_joint_values)
             rate.sleep()
