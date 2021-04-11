@@ -6,7 +6,7 @@ from Classes.human_robot_mapper_class_v2 import MapperClass
 from geometry_msgs.msg import Vector3
 
 def main():
-	mapper = MapperClass(START_NODE=True, rate=30)
+	mapper = MapperClass(START_NODE=True, rate=100, mode=0)
 	mapper.init_subscribers_and_publishers()
 	start_time = rospy.Time.now()
 	while not rospy.is_shutdown():
