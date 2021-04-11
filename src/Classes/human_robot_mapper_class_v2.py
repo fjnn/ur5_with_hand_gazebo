@@ -41,7 +41,7 @@ class MapperClass:
 		'''
 		self.mode = mode
 
-		self.human_wrist_joints = Vector3()
+		self.human_wrist_angles = Vector3()
 		self.hand_pose = Pose()
 		self.gyro = Vector3()
 
@@ -73,8 +73,8 @@ class MapperClass:
 
 	def init_subscribers_and_publishers(self):
 		self.sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, self.sub_hand_pose) # Pub: IMUsubscriber
-		self.sub_human_wrist_joints = rospy.Subscriber('/wrist_joints', Vector3, self.sub_wrist_joints)  # Pub: IMUsubscriber
-		self.sub_gyro = rospy.Subscriber('/gyro_wrist', Vector3, self.sub_wrist_joints)  # Pub: IMUsubscriber
+		self.sub_human_wrist_angles = rospy.Subscriber('/wrist_angles', Vector3, self.sub_wrist_angles)  # Pub: IMUsubscriber
+		self.sub_gyro = rospy.Subscriber('/gyro_wrist', Vector3, self.sub_gyro_wrist)  # Pub: IMUsubscriber
 
 		self.pub_tee_mapper_goal_pose = rospy.Publisher('/Tee_mapper_goal_pose', Pose, queue_size=1)  # Sub: IKsolver
 		self.sub_joints_openrave = rospy.Subscriber('/joint_states_openrave', Vector3, self.sub_joints_openrave)  # Pub: IKsolver
@@ -102,7 +102,7 @@ class MapperClass:
 		'''
 		self.Tee_pose = msg
 
-	def sub_gyro(self, msg):
+	def sub_gyro_wrist(self, msg):
 		'''
 		Subscribes the current gyro values and calculate adaptive speed gain
 		'''
@@ -185,25 +185,32 @@ class MapperClass:
 		'''
 		No need to Send jpose to IKsolver, publish /mapper_joints for UR_driver
 		'''
-		self.jsm_joints[4] = self.human_wrist_joints.x
-		self.jsm_joints[5] = self.human_wrist_joints.y
-		self.jsm_joints[6] = self.human_wrist_joints.z
-		self.pub_mapper_joints(self.jsm_joints)
-		# self.pub_tee_mapper_goal_pose.publish(self.jsm_pose) --> This is unnecessary. No IK is needed for JSM
+		self.jsm_joints.position[3] = - self.human_wrist_angles.x
+		self.jsm_joints.position[4] = self.human_wrist_angles.z
+		self.jsm_joints.position[5] = self.human_wrist_angles.y
+		self.pub_jsm_joints.publish(self.jsm_joints)
+		# NO NEED TO COMMUNICATE WITH OPENRAVE AT ALL
+		# self.jpose_calculate(wrist_1=jsm_joints.position[3], wrist_2=jsm_joints.position[4], wrist_3=jsm_joints.position[5]) # --> This is unnecessary for this mode. No IK is needed for JSM. Only for DEBUG
+		# self.pub_tee_mapper_goal_pose.publish(self.jsm_pose) 
+
+		# Instead the joint values to be sent to UR_driver is assigned such that:
+		self.pub_mapper_joints.publish(self.jsm_joints)
 
 	def tsm_send_joint_commands(self):
 		'''
 		Send tpose to IKsolver, publish /tsm_joints for UR_driver
 		'''
-		self.tsm_pose = self.tpose
-		self.pub_tee_mapper_goal_pose.publish(self.tsm_pose)
+		# self.tsm_pose = self.tpose
+		self.pub_tee_mapper_goal_pose.publish(self.tpose)
+		self.pub_mapper_joints.publish(self.joint_states_openrave)
 
 	def atsm_send_joint_commands(self):
 		'''
 		Send tpose to IKsolver, publish /tsm_joints for UR_driver
 		'''
-		self.tsm_pose = self.apose
-		self.pub_tee_mapper_goal_pose.publish(self.atsm_pose)
+		# self.tsm_pose = self.apose
+		self.pub_tee_mapper_goal_pose.publish(self.apose)
+		self.pub_mapper_joints.publish(self.joint_states_openrave)
 
 
 	def adaptive_tsm_calculate(self, jsm_pose, tsm_pose, speed_gain):
@@ -235,10 +242,13 @@ class MapperClass:
 		'''
 		print "Elapsed time:{}".format(elapsed_time)
 
+		Tee_requested = np.array([[0.00,  1.00,  0.00,  0.817], [1.00,  0.00,  0.00, -0.232], [0.00,  0.00, -1.00,  0.062], [0.00,  0.00,  0.00,  1.00]])
+		
+
 		# JSM
-		angle_x = float("{:.2f}".format(self.human_wrist_joints.x))
-		angle_y = float("{:.2f}".format(self.human_wrist_joints.y))
-		angle_z = float("{:.2f}".format(self.human_wrist_joints.z))
+		angle_x = float("{:.2f}".format(self.human_wrist_angles.x))
+		angle_y = float("{:.2f}".format(self.human_wrist_angles.y))
+		angle_z = float("{:.2f}".format(self.human_wrist_angles.z))
 		self.jpose_calculate(wrist_1=angle_x, wrist_2=angle_y, wrist_3=angle_z)  #jpose updated
 		self.pub_jpose.publish(self.jpose)
 
