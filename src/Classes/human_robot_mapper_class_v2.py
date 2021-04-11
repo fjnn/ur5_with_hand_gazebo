@@ -57,6 +57,7 @@ class MapperClass:
 		self.apose = Pose()
 
 		self.jsm_joints = JointState()
+		self.jsm_joints.position = [0.0, 1.57, -1.57, 0.0, 0.0, 0.0]
 		self.tsm_joints = JointState()
 		self.atsm_joints = JointState()
 
@@ -88,7 +89,7 @@ class MapperClass:
 		self.pub_jsm_joints = rospy.Publisher('/jsm_joints', JointState, queue_size=1)
 		self.pub_tsm_joints = rospy.Publisher('/tsm_joints', JointState, queue_size=1)
 		self.pub_atsm_joints = rospy.Publisher('/atsm_joints', JointState, queue_size=1)
-		self.pub_mapper_joints = rospy.Publisher('/mapper_joints', JointState, queue_size=1)
+		self.pub_mapper_joints = rospy.Publisher('/mapper_joints', JointState, queue_size=1) # This is the final publisher. Must be the same as atsm or tsm pose
 
 		# self.sub_odom_tool0 = rospy.Subscriber('/odom_wrist_3_link', Odometry, self.correct_tool0)
 		# self.pub_tool0_corrected = rospy.Publisher('/tool0_corrected', Pose, queue_size=1)
@@ -259,7 +260,7 @@ class MapperClass:
 		self.pub_apose.publish(self.apose)
 
 		# Send desired Tee_goal based on selected mode. 
-		# IKsolver will publish /joint_states_openrave based on this Tee goal pose
+		# IKsolver will publish /joint_states_openrave based on this Tee goal pose (except for JSM)
 		# Calculated IKsolver joints are published as mapper joints
 		if self.mode == 0:
 			self.jsm_send_joint_commands()
