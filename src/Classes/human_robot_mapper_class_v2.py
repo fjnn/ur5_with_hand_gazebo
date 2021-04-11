@@ -130,7 +130,7 @@ class MapperClass:
 		# self.Tee = DHmatrices.pose_to_htm(self.tpose)
 
 
-	def sub_wrist_joints(self, msg):
+	def sub_wrist_angles(self, msg):
 		'''
 		Subscribes wrist_joints {Vector3()} for JSM
 		'''
