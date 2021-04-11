@@ -127,7 +127,7 @@ class DHmatrices:
 		return result
 		
 	@staticmethod
-	def ee_goal_calculate(hand_pose, wrist_pose, r = 0.2):
+	def ee_goal_calculate(hand_pose, wrist_pose, r = 0.2, param='c'):
 		'''
 		Given hand_pose {Pose()}, parametrizes {z} such that it will be on UR5's workspace sphere.
 		@returns ee_goal {np.array(4,4)} - then this will be used as Tee for the robot
@@ -141,7 +141,18 @@ class DHmatrices:
 		wrist_htm = DHmatrices.to_numpy(wrist_pose)
 		x, y, z = DHmatrices.htm_to_vec(ee_goal_htm)
 		a, b, c = DHmatrices.htm_to_vec(wrist_htm)
-		param_z = sqrt(r**2 - (x-a)**2 - (y-b)**2) + c
-		return param_z
+		if param == 'x':
+			param_x = sqrt(r**2 - (z-c)**2 - (y-b)**2) + a
+			return param_x
+		elif param == 'y':
+			param_y = sqrt(r**2 - (x-a)**2 - (z-c)**2) + b
+			return param_y
+		elif param == 'z':
+			param_z = sqrt(r**2 - (x-a)**2 - (y-b)**2) + c
+			return param_z
+		else:
+			print "Unknown parameter selection"
+			return 0
+		
 		
 
