@@ -27,7 +27,7 @@ _ROSTIME_START = 0
 _HAND_POS_INIT = False
 prev = 0
 now = 0
-hand_link = np.array([0.04, 0.0, 0.0])
+hand_link = np.array([0.0, 0.04, 0.0])
 
 
 class IMUsubscriber:
@@ -176,6 +176,7 @@ class IMUsubscriber:
 				"""
 				global _HAND_POS_INIT
 				v_rotated = kinematic.q_rotate(self.q_wrist_sensorframe, hand_link)
+				# print "Wrist_angles:", self.q_wrist_sensorframe
 				# print "calibration:", self.calibration_flag, "self.q_wrist_tsm_init:", self.q_wrist_tsm_init
 				print "v_rotated_init:", v_rotated
 				if _HAND_POS_INIT == False:
