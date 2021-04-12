@@ -127,7 +127,7 @@ class DHmatrices:
 		return result
 		
 	@staticmethod
-	def ee_goal_calculate(hand_pose, wrist_pose, r = 0.2, param='c'):
+	def ee_goal_calculate(hand_pose, wrist_pose, r = 0.24779, param='c'):  # r calculated from ik
 		'''
 		Given hand_pose {Pose()}, parametrizes {z} such that it will be on UR5's workspace sphere.
 		@returns ee_goal {np.array(4,4)} - then this will be used as Tee for the robot
