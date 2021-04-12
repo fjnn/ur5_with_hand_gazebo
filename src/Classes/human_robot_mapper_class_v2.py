@@ -125,6 +125,11 @@ class MapperClass:
 		Subscribes hand_pose {Pose()}, converts it to Tee {Pose()}
 		'''
 		hand_pose = msg
+		## Here is another trick. At initial pose |hand_pose| = 0.04, |ur_wrist_radius| = 0.24779
+		hand_to_ur_scale = 6.19474  # 0.04/0.24779
+		hand_pose.position.x = hand_pose.position.x * hand_to_ur_scale
+		hand_pose.position.y = hand_pose.position.y * hand_to_ur_scale
+		hand_pose.position.z = hand_pose.position.z * hand_to_ur_scale
 		param_x = DHmatrices.ee_goal_calculate(hand_pose, self.Twrist_pose, param='x')
 		self.tpose = Pose(Point(param_x, hand_pose.position.y, hand_pose.position.z), hand_pose.orientation)
 		# self.Tee = DHmatrices.pose_to_htm(self.tpose)
