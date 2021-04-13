@@ -120,19 +120,39 @@ class MapperClass:
 		self.Twrist_pose = msg
 
 
-	def sub_hand_pose(self, msg):
+	def sub_hand_pose_bak(self, msg):
 		'''
 		Subscribes hand_pose {Pose()}, converts it to Tee {Pose()}
 		'''
 		hand_pose = msg
 		## Here is another trick. At initial pose |hand_pose| = 0.04, |ur_wrist_radius| = 0.24779
 		hand_to_ur_scale = 6.19474  # 0.04/0.24779
+		hand_to_ur_scale = 0.04/0.19012949
 		hand_pose.position.x = hand_pose.position.x * hand_to_ur_scale
 		hand_pose.position.y = hand_pose.position.y * hand_to_ur_scale
 		hand_pose.position.z = hand_pose.position.z * hand_to_ur_scale
 		param_x = DHmatrices.ee_goal_calculate(hand_pose, self.Twrist_pose, param='x')
+		## Tee @joints = [0, 0, 0] -> [0.1   0.227 0.   ]
 		self.tpose = Pose(Point(param_x, hand_pose.position.y, hand_pose.position.z), hand_pose.orientation)
+		print "tpose:", self.tpose.position
 		# self.Tee = DHmatrices.pose_to_htm(self.tpose)
+
+	
+	def sub_hand_pose(self, msg):
+		'''
+		Subscribes hand_pose {Pose()}, converts it to Tee {Pose()}
+		'''
+		hand_pose = msg
+		hand_pose_htm = DHmatrices.pose_to_htm(hand_pose)
+		hand_pose_init = Pose(Point(0.,0.04,0.), Quaternion(0.,0.,0.,1.))
+		hand_pose_init_htm = DHmatrices.pose_to_htm(hand_pose_init)
+		rot = np.matmul(np.linalg.inv(hand_pose_init_htm), hand_pose_htm)
+		ur_init = Pose(Point(-0.1000000,0.1270000,0.1000000), Quaternion(0.,0.,0.,1.))
+		ur_init_htm = DHmatrices.pose_to_htm(ur_init)
+		tpose_htm = np.matmul(ur_init_htm, rot)
+		tpose = DHmatrices.htm_to_vec(tpose_htm)
+		self.tpose = Pose(Point(tpose[0], tpose[1], tpose[2]), hand_pose.orientation)
+		print "tpose:", self.tpose.position
 
 
 	def sub_wrist_angles(self, msg):
