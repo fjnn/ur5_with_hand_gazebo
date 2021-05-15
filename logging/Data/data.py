@@ -17,60 +17,89 @@ from datetime import datetime
 
 
 # OUTPUT_FOLDER = "../Output"  # take it as a rosparam
-OUTPUT_FOLDER = "/home/gizem/catkin_ws/src/ur5_with_hand_gazebo/logging/Output"  # take it as a rosparam
-OUTPUT_FILENAME_PREFIX = "JSM_gizem_test"
+OUTPUT_FOLDER = "/home/gizem/Documents/Gitkraken/arm-paper/DataOutput"  # take it as a rosparam
+OUTPUT_FILENAME_PREFIX = "2arms_ur5e"
 
+# ID_ELAPSED_TIME = 'elapsed_time'
 
-ID_ELAPSED_TIME = 'elapsed_time'
-ID_TEE_POS_X = 'tool_pos_x'
-ID_TEE_POS_Y = 'tool_pos_y'
-ID_TEE_POS_Z = 'tool_pos_z'
-ID_TEE_ORI_X = 'tool_ori_x'
-ID_TEE_ORI_Y = 'tool_ori_y'
-ID_TEE_ORI_Z = 'tool_ori_z'
-ID_TEE_ORI_W = 'tool_ori_w'
-ID_WRIST_ANGLE_X = 'wrist_x'
-ID_WRIST_ANGLE_Y = 'wrist_y'
-ID_WRIST_ANGLE_Z = 'wrist_z'
-ID_HAND_POS_X = 'hand_pos_x'
-ID_HAND_POS_Y = 'hand_pos_y'
-ID_HAND_POS_Z = 'hand_pos_z'
-ID_HAND_ORI_X = 'hand_ori_x'
-ID_HAND_ORI_Y = 'hand_ori_y'
-ID_HAND_ORI_Z = 'hand_ori_z'
-ID_HAND_ORI_W = 'hand_ori_w'
-ID_GAIN_X = 'gain_x'
-ID_GAIN_Y = 'gain_y'
-ID_GAIN_Z = 'gain_z'
+# ID_LHAND_POS_X = 'lhand_pos_x'
+# ID_LHAND_POS_Y = 'lhand_pos_y'
+# ID_LHAND_POS_Z = 'lhand_pos_z'
+# ID_LHAND_ORI_X = 'lhand_ori_x'
+# ID_LHAND_ORI_Y = 'lhand_ori_y'
+# ID_LHAND_ORI_Z = 'lhand_ori_z'
+# ID_LHAND_ORI_W = 'lhand_ori_w'
 
-DATA_LABELS = (ID_ELAPSED_TIME, 
-								ID_TEE_POS_X, ID_TEE_POS_Y, ID_TEE_POS_Z, ID_TEE_ORI_X, ID_TEE_ORI_Y, ID_TEE_ORI_Z, ID_TEE_ORI_W, 
-								ID_WRIST_ANGLE_X, ID_WRIST_ANGLE_Y, ID_WRIST_ANGLE_Z,
-								ID_HAND_POS_X, ID_HAND_POS_Y, ID_HAND_POS_Z, ID_HAND_ORI_X, ID_HAND_ORI_Y, ID_HAND_ORI_Z, ID_HAND_ORI_W, 
-								ID_GAIN_X, ID_GAIN_Y, ID_GAIN_Z)
-DATA_INDICES = {
-								ID_ELAPSED_TIME: 0,
-								ID_TEE_POS_X: 1,
-								ID_TEE_POS_Y: 2,
-								ID_TEE_POS_Z: 3,
-								ID_TEE_ORI_X: 4,
-								ID_TEE_ORI_Y: 5,
-								ID_TEE_ORI_Z: 6,
-								ID_TEE_ORI_W: 7,
-								ID_WRIST_ANGLE_X: 8,
-								ID_WRIST_ANGLE_Y: 9,
-								ID_WRIST_ANGLE_Z: 10,
-								ID_HAND_POS_X: 11,
-								ID_HAND_POS_Y: 12,
-								ID_HAND_POS_Z: 13,
-								ID_HAND_ORI_X: 14,
-								ID_HAND_ORI_Y: 15,
-								ID_HAND_ORI_Z: 16,
-								ID_HAND_ORI_W: 17,
-								ID_GAIN_X: 18,
-								ID_GAIN_Y: 19,
-								ID_GAIN_Z: 20
-								}
+# ID_RHAND_POS_X = 'rhand_pos_x'
+# ID_RHAND_POS_Y = 'rhand_pos_y'
+# ID_RHAND_POS_Z = 'rhand_pos_z'
+# ID_RHAND_ORI_X = 'rhand_ori_x'
+# ID_RHAND_ORI_Y = 'rhand_ori_y'
+# ID_RHAND_ORI_Z = 'rhand_ori_z'
+# ID_RHAND_ORI_W = 'rhand_ori_w'
+
+# ID_TGOAL_POS_X = 'tgoal_pos_x'
+# ID_TGOAL_POS_Y = 'tgoal_pos_y'
+# ID_TGOAL_POS_Z = 'tgoal_pos_z'
+# ID_TGOAL_ORI_X = 'tgoal_ori_x'
+# ID_TGOAL_ORI_Y = 'tgoal_ori_y'
+# ID_TGOAL_ORI_Z = 'tgoal_ori_z'
+# ID_TGOAL_ORI_W = 'tgoal_ori_w'
+
+# ID_TACTUAL_POS_X = 'tactual_pos_x'
+# ID_TACTUAL_POS_Y = 'tactual_pos_y'
+# ID_TACTUAL_POS_Z = 'tactual_pos_z'
+# ID_TACTUAL_ORI_X = 'tactual_ori_x'
+# ID_TACTUAL_ORI_Y = 'tactual_ori_y'
+# ID_TACTUAL_ORI_Z = 'tactual_ori_z'
+# ID_TACTUAL_ORI_W = 'tactual_ori_w'
+
+# ID_TEE_POS_X = 'tool_pos_x'
+# ID_TEE_POS_Y = 'tool_pos_y'
+# ID_TEE_POS_Z = 'tool_pos_z'
+# ID_TEE_ORI_X = 'tool_ori_x'
+# ID_TEE_ORI_Y = 'tool_ori_y'
+# ID_TEE_ORI_Z = 'tool_ori_z'
+# ID_TEE_ORI_W = 'tool_ori_w'
+
+DATA_LABELS = ('ID_ELAPSED_TIME',
+				'ID_LHAND_POS_X',
+				'ID_LHAND_POS_Y',
+				'ID_LHAND_POS_Z',
+				'ID_LHAND_ORI_X',
+				'ID_LHAND_ORI_Y',
+				'ID_LHAND_ORI_Z',
+				'ID_LHAND_ORI_W',
+				'ID_RHAND_POS_X',
+				'ID_RHAND_POS_Y',
+				'ID_RHAND_POS_Z',
+				'ID_RHAND_ORI_X',
+				'ID_RHAND_ORI_Y',
+				'ID_RHAND_ORI_Z',
+				'ID_RHAND_ORI_W',
+				'ID_HAND_POS_X',
+				'ID_HAND_POS_Y',
+				'ID_HAND_POS_Z',
+				'ID_HAND_ORI_X',
+				'ID_HAND_ORI_Y',
+				'ID_HAND_ORI_Z',
+				'ID_HAND_ORI_W',
+				'ID_TGOAL_POS_X',
+				'ID_TGOAL_POS_Y',
+				'ID_TGOAL_POS_Z',
+				'ID_TGOAL_ORI_X',
+				'ID_TGOAL_ORI_Y',
+				'ID_TGOAL_ORI_Z',
+				'ID_TGOAL_ORI_W',
+				'ID_TACTUAL_POS_X',
+				'ID_TACTUAL_POS_Y',
+				'ID_TACTUAL_POS_Z',
+				'ID_TACTUAL_ORI_X',
+				'ID_TACTUAL_ORI_Y',
+				'ID_TACTUAL_ORI_Z',
+				'ID_TACTUAL_ORI_W')
+
+DATA_INDICES = list(range(0,len(DATA_LABELS)))
 
 
 def get_new_filename():
