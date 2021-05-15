@@ -29,7 +29,7 @@ def log_metrics(time, lhand_pose, rhand_pose, hand_pose, tgoal_pose, tactual_pos
         tgoal_pose_arr = [tgoal_pose.position.x, tgoal_pose.position.y, tgoal_pose.position.z, tgoal_pose.orientation.x, tgoal_pose.orientation.y, tgoal_pose.orientation.z, tgoal_pose.orientation.w]
         tactual_pose_arr = [tactual_pose.position.x, tactual_pose.position.y, tactual_pose.position.z, tactual_pose.orientation.x, tactual_pose.orientation.y, tactual_pose.orientation.z, tactual_pose.orientation.w]
         
-        new_data = [time, lhand_pose_arr, rhand_pose_arr, tgoal_pose_arr, tactual_pose_arr]
+        new_data = [time, lhand_pose_arr, rhand_pose_arr, hand_pose_arr, tgoal_pose_arr, tactual_pose_arr]
         _DATA.put(new_data)
         # print new_data
     else:

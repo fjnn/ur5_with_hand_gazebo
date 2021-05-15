@@ -56,8 +56,8 @@ if __name__ == "__main__":
 		sub_lhand_pose = rospy.Subscriber('/wrist_left', Pose, callback_lhand_pose)
 		sub_rhand_pose = rospy.Subscriber('/wrist_right', Pose, callback_rhand_pose)
 		sub_hand_pose = rospy.Subscriber('/hand_pose', Pose, callback_hand_pose)
-		sub_tool_goal_pose = rospy.Subscriber('/Tee_goal_pose', Pose, callback_hand_pose)
-		sub_tool_actual_pose = rospy.Subscriber('/tool0_corrected', Pose, callback_hand_pose) # /world to /tool0 TF
+		sub_tool_goal_pose = rospy.Subscriber('/Tee_goal_pose', Pose, callback_tool_goal_pose)
+		sub_tool_actual_pose = rospy.Subscriber('/tool0_corrected', Pose, callback_tool_actual_pose) # /world to /tool0 TF
 		# or sub_tool_actual_pose = rospy.Subscriber('/Tee_calculated', Pose, callback_hand_pose) # /world to /tool0 TF
 		# sub_tool_pose = rospy.Subscriber('/odom_wrist_3_link', Odometry, callback_tool_pose) ## Check this if it is the same as wrist_3_link.
 

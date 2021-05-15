@@ -2,3 +2,5 @@
 *.pyc
 
 logging/Output/gizem_test.csv
+
+logging/.vscode/
