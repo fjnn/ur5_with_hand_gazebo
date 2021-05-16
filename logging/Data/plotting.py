@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 import data
 
 
+# def parse_pose_cols(dataframes):
+#     """  Poses are divided by comma   """
+
+
+
 def plot_individual_motions(dataframes):
     """ Take one person's all measurements and plot roll-pitch-yaw. All in one plot"""
 

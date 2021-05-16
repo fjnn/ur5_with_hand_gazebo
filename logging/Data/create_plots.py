@@ -11,7 +11,7 @@ import pandas as pd
 # Load Data
 # my_trials = loading.load_folder('../../Output')
 
-folder = '../../Output'
+folder = '/home/gizem/Documents/Gitkraken/arm-paper/DataOutput/csv'
 df = []
 
 files = sorted(os.listdir(folder))
