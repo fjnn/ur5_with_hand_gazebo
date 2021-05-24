@@ -17,7 +17,8 @@ from datetime import datetime
 
 
 # OUTPUT_FOLDER = "../Output"  # take it as a rosparam
-OUTPUT_FOLDER = "/home/gizem/Documents/Gitkraken/arm-paper/DataOutput"  # take it as a rosparam
+# OUTPUT_FOLDER = "/home/gizem/Documents/Gitkraken/arm-paper/DataOutput"  # take it as a rosparam
+OUTPUT_FOLDER = "/home/gizem/Documents/OnedriveHVL/Belgelerim/PhD Related/Papers/Conceptualized HRC/Data"  # take it as a rosparam
 OUTPUT_FILENAME_PREFIX = "2arms_ur5e"
 
 
@@ -63,7 +64,8 @@ DATA_LABELS = ('ID_ELAPSED_TIME',
 				'ID_RHAND',
 				'ID_HAND',
 				'ID_TGOAL',
-				'ID_TACTUAL')
+				'ID_TACTUAL',
+                'ID_STATUS')
 
 DATA_INDICES = list(range(0,len(DATA_LABELS)))
 
@@ -71,7 +73,7 @@ DATA_INDICES = list(range(0,len(DATA_LABELS)))
 def get_new_filename():
     # postfix = datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + ".csv"
     # filename = OUTPUT_FILENAME_PREFIX + "_" + postfix
-    filename = "gizem_test.csv"
+    filename = "full_cycle.csv"
     # if folder doesn't exist, create it
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
