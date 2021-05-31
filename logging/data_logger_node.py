@@ -18,6 +18,7 @@ rhand_pose = Pose()
 hand_pose = Pose()
 tgoal_pose = Pose()
 tactual_pose = Pose()
+tactual_corrected_pose = Pose()
 status = String()
 
 
@@ -45,6 +46,15 @@ def callback_tool_actual_pose(msg):
 	## UPDATE: rosrun arm_motion_controller_pkg baselink_to_tool0_tf
 	tactual_pose = msg
 
+
+def callback_tool_corrected_pose(msg):
+	global tactual_corrected_pose
+	# TODO: wrist_3_link to tool tf here if in gazebo
+	# or run ur5_with_hang_gazebo/src/tool0_listener
+	## rosrun ur5_with_hand_gazebo tool0_listener.py
+	## UPDATE: rosrun arm_motion_controller_pkg baselink_to_tool0_tf
+	tactual_corrected_pose = msg
+
 def callback_hrc_status(msg):
 	global status
 	status = msg	
@@ -52,7 +62,7 @@ def callback_hrc_status(msg):
 	
 
 if __name__ == "__main__":
-	global lhand_pose, rhand_pose, hand_pose, tgoal_pose, tactual_pose
+	global lhand_pose, rhand_pose, hand_pose, tgoal_pose, tactual_pose, tactual_corrected_pose
 	try:
 		rospy.init_node('data_logger_node')
 		start_time = time.time()
@@ -65,6 +75,7 @@ if __name__ == "__main__":
 		sub_tool_goal_pose = rospy.Subscriber('/Tee_goal_pose', Pose, callback_tool_goal_pose)
 		# sub_tool_actual_pose = rospy.Subscriber('/tool0_corrected', Pose, callback_tool_actual_pose) # /world to /tool0 TF
 		sub_tool_actual_pose = rospy.Subscriber('/base_to_tool', Pose, callback_tool_actual_pose) # /base_link to /tool0 TF
+		sub_tool_actual_pose = rospy.Subscriber('/base_to_tool_corrected', Pose, callback_tool_corrected_pose) # /base_link to /tool0 TF
 		sub_hrc_status = rospy.Subscriber('/hrc_status', String, callback_hrc_status) 
 		# or sub_tool_actual_pose = rospy.Subscriber('/Tee_calculated', Pose, callback_hand_pose) # /world to /tool0 TF
 		# sub_tool_pose = rospy.Subscriber('/odom_wrist_3_link', Odometry, callback_tool_pose) ## Check this if it is the same as wrist_3_link.
@@ -72,7 +83,7 @@ if __name__ == "__main__":
 		rate = rospy.Rate(10)
 		while not rospy.is_shutdown():
 			elapsed_time = time.time() - start_time
-			data_logger.log_metrics(elapsed_time, lhand_pose, rhand_pose, hand_pose, tgoal_pose, tactual_pose, status)
+			data_logger.log_metrics(elapsed_time, lhand_pose, rhand_pose, hand_pose, tgoal_pose, tactual_pose, tactual_corrected_pose, status)
 			rate.sleep()
 	except KeyboardInterrupt:
 		data_logger.disable_logging()

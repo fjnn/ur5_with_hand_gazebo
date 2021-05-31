@@ -65,15 +65,16 @@ DATA_LABELS = ('ID_ELAPSED_TIME',
 				'ID_HAND',
 				'ID_TGOAL',
 				'ID_TACTUAL',
+                'ID_TACTUAL_CORRECTED',
                 'ID_STATUS')
 
 DATA_INDICES = list(range(0,len(DATA_LABELS)))
 
 
 def get_new_filename():
-    # postfix = datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + ".csv"
-    # filename = OUTPUT_FILENAME_PREFIX + "_" + postfix
-    filename = "full_cycle.csv"
+    postfix = datetime.now().strftime('%Y-%m-%d-%H-%M-%S') + ".csv"
+    filename = OUTPUT_FILENAME_PREFIX + "_" + postfix
+    # filename = "full_cycle_rt.csv"
     # if folder doesn't exist, create it
     if not os.path.exists(OUTPUT_FOLDER):
         os.makedirs(OUTPUT_FOLDER)
