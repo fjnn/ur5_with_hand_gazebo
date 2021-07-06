@@ -29,6 +29,16 @@
     <material>Gazebo/Orange</material>
   </gazebo>
 
+
+  <gazebo>
+			<plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+				<frameName>map</frameName>
+				<bodyName>human/left_hand</bodyName>
+				<topicName>odom_left_hand</topicName>
+				<updateRate>30.0</updateRate>
+			</plugin>
+		</gazebo>
+
   <!-- camera_link -->
 
   <!-- Add camera on the head, laser and hokuyo later -->
